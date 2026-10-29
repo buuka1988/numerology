@@ -1,0 +1,593 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Числа Пифагора</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Forum&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: инструмент из двух колонок — слева «вход» (имя и дата), справа результаты: числа → подробно → квадрат Пифагора → циклы */
+:root {
+  --bg: #EDF1ED;
+  --surface: #FAFCF9;
+  --well: #E3E9E4;
+  --ink: #16302A;
+  --muted: #586B65;
+  --line: #C9D4CD;
+  --accent: #1E5D52;
+  --accent-soft: #DCE9E4;
+  --gold: #9A6A14;
+  --gold-soft: #F3E8CF;
+  --f-display: "Forum", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --f-body: "Golos Text", "Segoe UI", Roboto, system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1614; --surface: #14201D; --well: #1B2925; --ink: #E2EBE6; --muted: #92A59F;
+    --line: #2A3B36; --accent: #72C2B1; --accent-soft: #1C3530; --gold: #DDAE55; --gold-soft: #33291A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1614; --surface: #14201D; --well: #1B2925; --ink: #E2EBE6; --muted: #92A59F;
+  --line: #2A3B36; --accent: #72C2B1; --accent-soft: #1C3530; --gold: #DDAE55; --gold-soft: #33291A;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.55;
+  padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 28px; }
+
+/* Header */
+.masthead { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.masthead svg { flex: none; }
+.masthead h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(32px, 5vw, 46px); line-height: 1; margin: 0; letter-spacing: 0.01em; text-wrap: balance; }
+.masthead p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+
+.app { display: grid; grid-template-columns: minmax(260px, 320px) minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 880px) { .app { grid-template-columns: minmax(0, 1fr); } }
+
+/* Input panel */
+.panel {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+  padding: 20px; display: grid; gap: 18px;
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px);
+}
+@media (max-width: 880px) { .panel { position: static; } }
+.field { display: grid; gap: 6px; }
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 500; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.sample { text-transform: none; letter-spacing: 0; font-size: 11px; background: var(--gold-soft); color: var(--gold); padding: 1px 8px; border-radius: 99px; }
+input[type="text"], input[type="date"] {
+  width: 100%; font: inherit; font-size: 16px; color: var(--ink);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px;
+}
+input:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hint { font-size: 12.5px; color: var(--muted); margin: 0; }
+.err { font-size: 12.5px; color: #B3402F; margin: 0; }
+details.alpha { border-top: 1px solid var(--line); padding-top: 14px; }
+details.alpha summary { cursor: pointer; font-size: 13.5px; font-weight: 500; color: var(--accent); }
+.alpha-wrap { overflow-x: auto; margin-top: 10px; }
+.alpha table { border-collapse: collapse; font-family: var(--f-mono); font-size: 12.5px; width: 100%; }
+.alpha th, .alpha td { border: 1px solid var(--line); text-align: center; padding: 4px 0; min-width: 24px; }
+.alpha th { color: var(--accent); background: var(--accent-soft); font-weight: 500; }
+.alpha .cap { font-family: var(--f-body); font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  font: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer;
+  border-radius: 10px; padding: 9px 14px; border: 1px solid var(--line);
+  background: transparent; color: var(--ink);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.btn:hover { border-color: var(--accent); }
+
+/* Results */
+.results { display: grid; gap: 32px; min-width: 0; }
+.who { display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap; }
+.who h2 { font-family: var(--f-display); font-weight: 400; font-size: clamp(24px, 3.4vw, 32px); margin: 0; line-height: 1.15; text-wrap: balance; overflow-wrap: anywhere; }
+.who span { color: var(--muted); font-size: 14px; }
+section { display: grid; gap: 14px; min-width: 0; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.sec-head h3 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; color: var(--accent); }
+.sec-head p { margin: 0; font-size: 13px; color: var(--muted); }
+
+/* Core tiles */
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 560px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tile {
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 12px 14px 14px; display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; align-items: center;
+  transition: border-color .15s, background-color .15s;
+}
+.tile:hover { border-color: var(--accent); }
+.tile[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.tile .n { grid-row: span 2; font-family: var(--f-display); font-size: 50px; line-height: 1; color: var(--accent); min-width: 1.1ch; font-variant-numeric: lining-nums tabular-nums; }
+.tile .n.master { color: var(--gold); }
+.tile .t { font-size: 13.5px; font-weight: 600; line-height: 1.25; }
+.tile .a { font-size: 12.5px; color: var(--muted); line-height: 1.3; }
+
+/* Detail */
+.detail { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 28px; }
+@media (max-width: 620px) { .detail { grid-template-columns: minmax(0, 1fr); } }
+.big { font-family: var(--f-display); font-size: clamp(96px, 14vw, 150px); line-height: .85; color: var(--accent); text-align: center; min-width: 1.4ch; }
+.big.master { color: var(--gold); }
+.big small { display: block; font-family: var(--f-body); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-top: 12px; line-height: 1.2; }
+.detail-body { display: grid; gap: 12px; min-width: 0; }
+.detail-body .kind { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0; }
+.detail-body h4 { font-family: var(--f-display); font-weight: 400; font-size: 30px; line-height: 1.1; margin: 0; }
+.detail-body .ctx { margin: 0; color: var(--muted); font-size: 14px; }
+.detail-body .txt { margin: 0; max-width: 64ch; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 12.5px; padding: 3px 10px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 520px) { .pair { grid-template-columns: minmax(0, 1fr); } }
+.pair h5 { margin: 0 0 2px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+.pair .plus h5 { color: var(--accent); }
+.pair .minus h5 { color: var(--gold); }
+.pair p { margin: 0; font-size: 14px; }
+.steps { background: var(--well); border-radius: 10px; padding: 12px 14px; font-family: var(--f-mono); font-size: 12.5px; line-height: 1.8; overflow-x: auto; }
+.steps .h { font-family: var(--f-body); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 2px; }
+.steps div { white-space: nowrap; }
+.steps sub { font-size: 9px; color: var(--accent); vertical-align: -2px; margin-right: 3px; }
+.steps b { color: var(--accent); font-weight: 500; }
+
+/* Pythagorean square */
+.psy { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 760px) { .psy { grid-template-columns: minmax(0, 1fr); } }
+.work { font-family: var(--f-mono); font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.work b { color: var(--ink); font-weight: 500; }
+.grid9 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) 34px; gap: 4px; max-width: 340px; }
+.cell {
+  aspect-ratio: 1; max-width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  display: grid; grid-template-rows: auto 1fr; padding: 6px 8px; min-width: 0;
+}
+.cell .cl { font-size: 10.5px; color: var(--muted); line-height: 1.2; }
+.cell .cv { font-family: var(--f-display); font-size: clamp(18px, 4.6vw, 26px); color: var(--accent); align-self: center; justify-self: center; letter-spacing: 0.02em; overflow-wrap: anywhere; text-align: center; line-height: 1.05; }
+.cell .cv.empty { color: var(--line); }
+.sum { display: grid; place-items: center; font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.sum.col { padding-top: 2px; }
+.sum b { color: var(--ink); font-weight: 500; font-size: 13px; }
+.readings { display: grid; gap: 0; }
+.reading { display: grid; grid-template-columns: 26px 110px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; align-items: baseline; }
+.reading:last-child { border-bottom: 0; }
+@media (max-width: 420px) { .reading { grid-template-columns: 26px minmax(0, 1fr); } .reading .rt { grid-column: 2; } }
+.reading .rd { font-family: var(--f-display); font-size: 20px; color: var(--accent); line-height: 1; }
+.reading .rn { font-weight: 600; font-size: 13px; }
+.reading .rn span { display: block; font-weight: 400; color: var(--muted); font-family: var(--f-mono); font-size: 11.5px; }
+.lines { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 620px) { .lines { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.line { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 4px; }
+.line .ln { font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; gap: 6px; }
+.line .ln span { font-family: var(--f-mono); font-weight: 400; color: var(--muted); font-size: 11.5px; }
+.bar { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; }
+.bar i { height: 5px; border-radius: 2px; background: var(--well); }
+.bar i.on { background: var(--accent); }
+.line .lv { font-size: 12px; color: var(--muted); }
+
+/* Cycles */
+.cycles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 680px) { .cycles { grid-template-columns: minmax(0, 1fr); } }
+.cycle { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 14px; align-items: start; }
+.cycle .n { grid-row: span 3; font-family: var(--f-display); font-size: 46px; line-height: 1; color: var(--accent); }
+.cycle .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.cycle .t { font-weight: 600; font-size: 14px; }
+.cycle p { margin: 0; font-size: 13.5px; color: var(--muted); }
+
+.note { font-size: 12.5px; color: var(--muted); margin: 0; max-width: 70ch; }
+.toast { font-size: 12.5px; color: var(--accent); align-self: center; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <svg width="48" height="44" viewBox="0 0 48 44" aria-hidden="true">
+      <!-- Тетрактис: 1 + 2 + 3 + 4 = 10 -->
+      <g fill="var(--accent)">
+        <circle cx="24" cy="5" r="3.4"/>
+        <circle cx="18" cy="16" r="3.4"/><circle cx="30" cy="16" r="3.4"/>
+        <circle cx="12" cy="27" r="3.4"/><circle cx="24" cy="27" r="3.4"/><circle cx="36" cy="27" r="3.4"/>
+      </g>
+      <g fill="var(--gold)">
+        <circle cx="6" cy="38" r="3.4"/><circle cx="18" cy="38" r="3.4"/><circle cx="30" cy="38" r="3.4"/><circle cx="42" cy="38" r="3.4"/>
+      </g>
+    </svg>
+    <div>
+      <h1>Числа Пифагора</h1>
+      <p>Нумерологический калькулятор: путь, имя, душа, квадрат Пифагора и личные циклы</p>
+    </div>
+  </header>
+
+  <div class="app">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="field">
+        <label class="label" for="name">Полное имя <span class="sample" id="sampleTag">пример</span></label>
+        <input type="text" id="name" placeholder="Имя Отчество Фамилия">
+        <p class="hint">Как в свидетельстве о рождении. Кириллица или латиница.</p>
+      </div>
+      <div class="field">
+        <label class="label" for="dob">Дата рождения</label>
+        <input type="date" id="dob" min="1800-01-01" max="2100-12-31">
+        <p class="err" id="err" hidden></p>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="copyBtn">Скопировать итог</button>
+        <button type="button" class="btn" id="sampleBtn">Пример</button>
+        <span class="toast" id="toast" role="status"></span>
+      </div>
+      <details class="alpha">
+        <summary>Таблица букв и чисел</summary>
+        <div class="alpha-wrap" id="alpha"></div>
+      </details>
+    </form>
+
+    <main class="results" id="results" aria-live="polite">
+      <div class="who"><h2 id="whoName"></h2><span id="whoDate"></span></div>
+
+      <section>
+        <div class="sec-head"><h3>Основные числа</h3><p>Нажмите на число, чтобы открыть расшифровку</p></div>
+        <div class="tiles" id="tiles"></div>
+        <article class="detail" id="detail"></article>
+      </section>
+
+      <section>
+        <div class="sec-head"><h3>Квадрат Пифагора</h3><p>Психоматрица по дате рождения</p></div>
+        <div class="work" id="work"></div>
+        <div class="psy">
+          <div class="grid9" id="grid9" role="table" aria-label="Квадрат Пифагора"></div>
+          <div class="readings" id="readings"></div>
+        </div>
+        <div class="lines" id="lines"></div>
+      </section>
+
+      <section>
+        <div class="sec-head"><h3>Личные циклы</h3><p id="today"></p></div>
+        <div class="cycles" id="cycles"></div>
+      </section>
+
+      <p class="note">Нумерология — традиция толкования чисел, а не наука. Используйте расшифровки как повод поразмышлять о себе, а не как прогноз.</p>
+    </main>
+  </div>
+</div>
+
+<script>
+(function () {
+  const RU = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
+  const EN = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const VOWELS = new Set('АЕЁИОУЫЭЮЯAEIOU'.split(''));
+  const MASTER = new Set([11, 22, 33]);
+  const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  const SAMPLE = { name: 'Анна Сергеевна Иванова', dob: '1990-03-14' };
+
+  const M = {
+    1: { a: 'Лидер', k: ['независимость', 'воля', 'инициатива'], t: 'Энергия начала. Вы идёте первым, принимаете решения быстро и не любите ждать чужого разрешения. Лучше всего раскрываетесь там, где можно открыть новое направление и вести за собой.', p: 'Смелость, самостоятельность, умение запускать проекты.', m: 'Нетерпение, упрямство, трудности с тем, чтобы просить о помощи.' },
+    2: { a: 'Дипломат', k: ['чуткость', 'партнёрство', 'такт'], t: 'Число союза. Вы тонко чувствуете настроение людей и умеете соединять тех, кто не может договориться сам. Сила проявляется в команде и паре, а не в одиночном рывке.', p: 'Эмпатия, терпение, талант посредника.', m: 'Зависимость от чужого мнения, обида вместо прямого разговора.' },
+    3: { a: 'Творец', k: ['самовыражение', 'оптимизм', 'слово'], t: 'Число радости и речи. Вам важно делиться идеями, шутить, рассказывать, создавать. Окружающие тянутся к вашей лёгкости, а лучшие результаты приходят через творчество и общение.', p: 'Красноречие, воображение, умение вдохновлять.', m: 'Разбросанность, поверхностность, страх критики.' },
+    4: { a: 'Строитель', k: ['порядок', 'надёжность', 'труд'], t: 'Число фундамента. Вы цените систему, ясные правила и результат, который можно потрогать. На вас можно положиться: если вы взялись, дело будет доведено до конца.', p: 'Дисциплина, практичность, верность слову.', m: 'Жёсткость, сопротивление переменам, перегрузка работой.' },
+    5: { a: 'Искатель', k: ['свобода', 'перемены', 'любопытство'], t: 'Число движения. Вас манят путешествия, новые люди и впечатления. Рутина утомляет, зато в быстро меняющейся обстановке вы чувствуете себя как рыба в воде.', p: 'Гибкость, находчивость, обаяние.', m: 'Непостоянство, импульсивность, тяга к крайностям.' },
+    6: { a: 'Хранитель', k: ['забота', 'гармония', 'ответственность'], t: 'Число дома и любви. Вы создаёте уют, заботитесь о близких и остро чувствуете несправедливость. Красота и гармония для вас не роскошь, а необходимость.', p: 'Преданность, щедрость, чувство прекрасного.', m: 'Гиперопека, жертвенность, стремление всё контролировать.' },
+    7: { a: 'Мыслитель', k: ['анализ', 'глубина', 'поиск истины'], t: 'Число познания. Вам нужно понять, как всё устроено на самом деле. Вы цените тишину, книги и разговоры по существу, а выводы делаете сами, не принимая чужие на веру.', p: 'Проницательность, интеллект, интуиция исследователя.', m: 'Замкнутость, скептицизм, отстранённость от людей.' },
+    8: { a: 'Стратег', k: ['власть', 'достаток', 'управление'], t: 'Число материального мира. Вы видите ресурсы и умеете превращать усилия в деньги и влияние. Масштабные задачи вас не пугают, а дают силы.', p: 'Деловая хватка, выносливость, организаторский талант.', m: 'Трудоголизм, властность, измерение всего деньгами.' },
+    9: { a: 'Гуманист', k: ['сострадание', 'мудрость', 'служение'], t: 'Число завершения цикла. Вы мыслите широко, сочувствуете людям и хотите сделать мир лучше. Вам легко даются роли наставника, помощника и того, кто видит общую картину.', p: 'Великодушие, широта взглядов, творческий дар.', m: 'Идеализм, трудности с отпусканием прошлого, самопожертвование.' },
+    11: { a: 'Вдохновитель', k: ['интуиция', 'озарение', 'идеализм'], t: 'Мастер-число, усиленная двойка. Вы улавливаете то, что другие ещё не видят, и способны зажигать людей идеей. Высокая чувствительность — и дар, и испытание: важно заземлять вдохновение в конкретные дела.', p: 'Яркая интуиция, харизма, духовная глубина.', m: 'Нервное напряжение, сомнения в себе, оторванность от практики.' },
+    22: { a: 'Мастер-строитель', k: ['масштаб', 'воплощение', 'видение'], t: 'Мастер-число, усиленная четвёрка. Вы способны соединить большую мечту с практичным планом и построить то, что переживёт вас. Нужны терпение и опора на команду.', p: 'Стратегическое видение, огромная работоспособность.', m: 'Давление собственных ожиданий, страх не справиться.' },
+    33: { a: 'Мастер-учитель', k: ['наставничество', 'любовь', 'исцеление'], t: 'Мастер-число, усиленная шестёрка. Ваша сила в бескорыстной заботе и умении учить примером. Люди приходят к вам за поддержкой, поэтому важно не забывать и о себе.', p: 'Сострадание, мудрость, дар поддержки.', m: 'Выгорание, растворение в чужих проблемах.' }
+  };
+
+  const KINDS = {
+    lp: { t: 'Жизненный путь', ctx: 'Главная линия жизни: какие задачи и уроки приходят снова и снова. Считается по дате рождения.' },
+    ex: { t: 'Число имени', ctx: 'Число выражения. Таланты и способности, заложенные в полном имени.' },
+    so: { t: 'Число души', ctx: 'Считается по гласным. Внутренние желания и то, что по-настоящему радует.' },
+    pe: { t: 'Число личности', ctx: 'Считается по согласным. Каким вас видят окружающие при первом знакомстве.' },
+    bd: { t: 'День рождения', ctx: 'Особый дар, который помогает на жизненном пути.' },
+    ma: { t: 'Число зрелости', ctx: 'Сумма пути и имени. К чему жизнь ведёт после 35–40 лет.' }
+  };
+
+  const PY = {
+    1: ['Начало', 'Время новых проектов и смелых решений. Сейте то, что хотите собрать в ближайшие девять лет.'],
+    2: ['Партнёрство', 'Год терпения и отношений. Результаты зреют медленно, помогает сотрудничество.'],
+    3: ['Самовыражение', 'Творчество, общение, радость. Хорошо учиться, выступать и знакомиться.'],
+    4: ['Фундамент', 'Работа, порядок, дисциплина. Укрепляйте здоровье, финансы и быт.'],
+    5: ['Перемены', 'Свобода, поездки, неожиданные повороты. Не держитесь за старое.'],
+    6: ['Ответственность', 'Семья, дом, забота о близких. Время вкладываться в отношения.'],
+    7: ['Осмысление', 'Учёба, уединение, анализ. Меньше суеты, больше внутренней работы.'],
+    8: ['Достижения', 'Карьера, деньги, признание. Пожинайте плоды прежних усилий.'],
+    9: ['Завершение', 'Подведение итогов и отпускание лишнего перед новым циклом.']
+  };
+  const PM = {
+    1: 'Начинайте и решайте.', 2: 'Договаривайтесь и ждите.', 3: 'Общайтесь и творите.', 4: 'Наводите порядок.',
+    5: 'Будьте гибкими.', 6: 'Время для близких.', 7: 'Думайте и учитесь.', 8: 'Действуйте по-деловому.', 9: 'Завершайте начатое.'
+  };
+
+  const CELL = {
+    1: { n: 'Характер', r: ['Характер складывается через опыт и окружение.', 'Мягкий характер, склонность к компромиссам.', 'Уравновешенность: умеет и уступить, и настоять.', 'Твёрдый, решительный характер, ценит своё слово.', 'Сильная воля и лидерство, бывает упрямство.', 'Властность, потребность держать всё под контролем.'] },
+    2: { n: 'Энергия', r: ['Энергии мало, важно беречь силы и отдыхать.', 'Сил хватает на главное, помогает режим.', 'Достаточно энергии для дел и общения.', 'Много энергии, людям рядом с вами тепло.', 'Избыток энергии, нужен выход в спорте и творчестве.'] },
+    3: { n: 'Познание', r: ['Знания легче даются через практику.', 'Интерес к учёбе зависит от настроения.', 'Тяга к точным наукам и аккуратности.', 'Аналитический ум, любовь к порядку и исследованиям.'] },
+    4: { n: 'Здоровье', r: ['Здоровью стоит уделять особое внимание.', 'Средний запас сил, очень помогает спорт.', 'Хорошее здоровье, быстрое восстановление.', 'Крепкое здоровье и выносливость.'] },
+    5: { n: 'Интуиция', r: ['Решения через пробу и ошибку.', 'Логика работает, интуиция приходит с опытом.', 'Развитая интуиция, умение предвидеть.', 'Очень сильная интуиция и стратегическое мышление.'] },
+    6: { n: 'Мастерство', r: ['Ближе умственный, а не ручной труд.', 'Работа руками — скорее по необходимости.', 'Умелые руки, удовольствие от ремесла.', 'Трудолюбие и тяга создавать вещи.'] },
+    7: { n: 'Удача', r: ['Успех приходит через упорный труд.', 'Скромный талант, раскрывается в деле.', 'Яркие способности, везение в начинаниях.', 'Редкий талант и особое везение.'] },
+    8: { n: 'Долг', r: ['Свобода важнее обязательств.', 'Ответственность в разумных пределах.', 'Обострённое чувство долга, заботливость.', 'Готовность отвечать за многих людей.'] },
+    9: { n: 'Память', r: ['Опора на записи и системы, а не на память.', 'Память стоит тренировать.', 'Хорошая память и сообразительность.', 'Отличная память, глубокий ум.'] }
+  };
+  const LINES = [
+    { n: 'Цель', d: [1, 4, 7] }, { n: 'Семья', d: [2, 5, 8] }, { n: 'Привычки', d: [3, 6, 9] },
+    { n: 'Самооценка', d: [1, 2, 3] }, { n: 'Быт и деньги', d: [4, 5, 6] }, { n: 'Талант', d: [7, 8, 9] },
+    { n: 'Духовность', d: [1, 5, 9] }, { n: 'Темперамент', d: [3, 5, 7] }
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const digitSum = (n) => String(Math.abs(n)).split('').reduce((a, c) => a + (+c), 0);
+  function chain(n, keepMaster = true) {
+    const out = [n];
+    while (n > 9 && !(keepMaster && MASTER.has(n))) { n = digitSum(n); out.push(n); }
+    return out;
+  }
+  const last = (a) => a[a.length - 1];
+  const arrow = (a) => a.join(' → ');
+
+  function letterVal(ch) {
+    const u = ch.toUpperCase();
+    let i = RU.indexOf(u); if (i >= 0) return i % 9 + 1;
+    i = EN.indexOf(u); if (i >= 0) return i % 9 + 1;
+    return 0;
+  }
+
+  function nameNumber(name, mode) {
+    const words = name.trim().split(/\s+/).filter(Boolean);
+    const lines = []; const parts = [];
+    for (const w of words) {
+      const letters = [];
+      for (const ch of w) {
+        const v = letterVal(ch); if (!v) continue;
+        const isV = VOWELS.has(ch.toUpperCase());
+        if (mode === 'v' && !isV) continue;
+        if (mode === 'c' && isV) continue;
+        letters.push({ ch: ch.toUpperCase(), v });
+      }
+      if (!letters.length) continue;
+      const s = letters.reduce((a, l) => a + l.v, 0);
+      const c = chain(s);
+      parts.push(last(c));
+      lines.push(letters.map((l) => esc(l.ch) + '<sub>' + l.v + '</sub>').join('') + ' = ' + arrow(c));
+    }
+    if (!parts.length) return null;
+    const total = parts.reduce((a, b) => a + b, 0);
+    const c = chain(total);
+    lines.push('Итого: ' + parts.join(' + ') + ' = <b>' + arrow(c) + '</b>');
+    return { v: last(c), steps: lines };
+  }
+
+  function lifePath(d, m, y) {
+    const cd = chain(d), cm = chain(m), cy = chain(y);
+    const s = last(cd) + last(cm) + last(cy);
+    const cs = chain(s);
+    return {
+      v: last(cs),
+      steps: [
+        'День ' + String(d).padStart(2, '0') + ': ' + arrow(cd),
+        'Месяц ' + String(m).padStart(2, '0') + ': ' + arrow(cm),
+        'Год ' + y + ': ' + arrow(cy),
+        'Сумма: ' + last(cd) + ' + ' + last(cm) + ' + ' + last(cy) + ' = <b>' + arrow(cs) + '</b>'
+      ]
+    };
+  }
+
+  function psychomatrix(d, m, y) {
+    const dd = String(d).padStart(2, '0'), mm = String(m).padStart(2, '0'), yy = String(y);
+    const s = dd + mm + yy;
+    const n1 = s.split('').reduce((a, c) => a + (+c), 0);
+    const n2 = digitSum(n1);
+    let n3, n3txt;
+    if (y < 2000) {
+      const first = +(dd.replace(/^0/, '')[0]);
+      n3 = Math.abs(n1 - 2 * first);
+      n3txt = n1 + ' − 2×' + first + ' = ' + n3;
+    } else {
+      n3 = n1 + 19;
+      n3txt = n1 + ' + 19 = ' + n3;
+    }
+    const n4 = digitSum(n3);
+    const all = s + n1 + n2 + n3 + n4;
+    const counts = {}; for (let i = 1; i <= 9; i++) counts[i] = 0;
+    for (const ch of all) { const v = +ch; if (v) counts[v]++; }
+    return { counts, work: { n1, n2, n3, n4, n3txt, s, date: dd + '.' + mm + '.' + yy } };
+  }
+
+  function personal(d, m, now) {
+    const year = now.getFullYear();
+    const py = last(chain(last(chain(d, false)) + last(chain(m, false)) + last(chain(year, false)), false));
+    const pm = last(chain(py + now.getMonth() + 1, false));
+    const pd = last(chain(pm + now.getDate(), false));
+    return { py, pm, pd, year };
+  }
+
+  // Alphabet table
+  function buildAlpha() {
+    const row = (src, label) => {
+      const cols = Array.from({ length: 9 }, () => []);
+      src.split('').forEach((ch, i) => cols[i % 9].push(ch));
+      const depth = Math.max(...cols.map((c) => c.length));
+      let h = '<p class="cap">' + label + '</p><table><tr>' + cols.map((_, i) => '<th>' + (i + 1) + '</th>').join('') + '</tr>';
+      for (let r = 0; r < depth; r++) h += '<tr>' + cols.map((c) => '<td>' + (c[r] || '') + '</td>').join('') + '</tr>';
+      return h + '</table>';
+    };
+    $('alpha').innerHTML = row(RU, 'Кириллица') + row(EN, 'Латиница') + '<p class="cap">Гласные: А Е Ё И О У Ы Э Ю Я · A E I O U</p>';
+  }
+
+  let selected = 'lp';
+  let current = null;
+
+  function parseDate(v) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || '');
+    if (!m) return null;
+    const y = +m[1], mo = +m[2], d = +m[3];
+    if (y < 1800 || y > 2100 || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+    const dt = new Date(y, mo - 1, d);
+    if (dt.getMonth() !== mo - 1) return null;
+    return { y, m: mo, d };
+  }
+
+  function compute() {
+    const name = $('name').value;
+    const date = parseDate($('dob').value);
+    $('err').hidden = !!date;
+    if (!date) { $('err').textContent = 'Укажите дату рождения, например 14.03.1990.'; return; }
+    const { d, m, y } = date;
+    const lp = lifePath(d, m, y);
+    const ex = nameNumber(name, 'a');
+    const so = nameNumber(name, 'v');
+    const pe = nameNumber(name, 'c');
+    const bdc = chain(d);
+    const bd = { v: last(bdc), steps: ['День рождения ' + d + ': <b>' + arrow(bdc) + '</b>'] };
+    let ma = null;
+    if (ex) { const c = chain(lp.v + ex.v); ma = { v: last(c), steps: ['Путь ' + lp.v + ' + Имя ' + ex.v + ' = <b>' + arrow(c) + '</b>'] }; }
+    current = { name: name.trim(), date, nums: { lp, ex, so, pe, bd, ma }, psy: psychomatrix(d, m, y), per: personal(d, m, new Date()) };
+    render();
+    try { localStorage.setItem('pyth-num', JSON.stringify({ name, dob: $('dob').value })); } catch (e) {}
+  }
+
+  function render() {
+    const c = current;
+    $('whoName').textContent = c.name || 'Без имени';
+    $('whoDate').textContent = c.date.d + ' ' + MONTHS[c.date.m - 1] + ' ' + c.date.y;
+
+    // Tiles
+    $('tiles').innerHTML = Object.keys(KINDS).map((k) => {
+      const n = c.nums[k];
+      const v = n ? n.v : '—';
+      const master = n && MASTER.has(n.v);
+      return '<button type="button" class="tile" data-k="' + k + '" aria-pressed="' + (k === selected) + '">' +
+        '<span class="n' + (master ? ' master' : '') + '">' + v + '</span>' +
+        '<span class="t">' + KINDS[k].t + '</span>' +
+        '<span class="a">' + (n ? M[n.v].a + (master ? ' · мастер' : '') : 'нужно имя') + '</span></button>';
+    }).join('');
+    renderDetail();
+
+    // Psychomatrix
+    const p = c.psy, w = p.work;
+    $('work').innerHTML =
+      '<span>Дата: <b>' + w.s.split('').join('+') + ' = ' + w.n1 + '</b></span>' +
+      '<span>1-е: <b>' + w.n1 + '</b></span><span>2-е: <b>' + w.n2 + '</b></span>' +
+      '<span>3-е: <b>' + w.n3txt + '</b></span><span>4-е: <b>' + w.n4 + '</b></span>';
+    const order = [[1, 4, 7], [2, 5, 8], [3, 6, 9]];
+    let g = '';
+    order.forEach((row) => {
+      row.forEach((dg) => {
+        const cnt = p.counts[dg];
+        g += '<div class="cell" role="cell"><span class="cl">' + CELL[dg].n + '</span><span class="cv' + (cnt ? '' : ' empty') + '">' +
+          (cnt ? String(dg).repeat(cnt) : 'нет ' + dg) + '</span></div>';
+      });
+      const rs = row.reduce((a, dg) => a + p.counts[dg], 0);
+      g += '<div class="sum" title="Сумма строки"><b>' + rs + '</b></div>';
+    });
+    [[1, 2, 3], [4, 5, 6], [7, 8, 9]].forEach((col) => {
+      g += '<div class="sum col" title="Сумма столбца"><b>' + col.reduce((a, dg) => a + p.counts[dg], 0) + '</b></div>';
+    });
+    g += '<div class="sum col" title="Диагональ 1-5-9"><b>' + (p.counts[1] + p.counts[5] + p.counts[9]) + '</b></div>';
+    $('grid9').innerHTML = g;
+
+    $('readings').innerHTML = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((dg) => {
+      const cnt = p.counts[dg], r = CELL[dg].r;
+      return '<div class="reading"><span class="rd">' + dg + '</span><span class="rn">' + CELL[dg].n +
+        '<span>' + (cnt ? String(dg).repeat(cnt) : '—') + '</span></span><span class="rt">' + r[Math.min(cnt, r.length - 1)] + '</span></div>';
+    }).join('');
+
+    $('lines').innerHTML = LINES.map((l) => {
+      const s = l.d.reduce((a, dg) => a + p.counts[dg], 0);
+      const lv = s <= 2 ? 'выражено слабо' : s <= 4 ? 'выражено умеренно' : s <= 6 ? 'выражено сильно' : 'выражено очень сильно';
+      let bar = ''; for (let i = 0; i < 8; i++) bar += '<i' + (i < s ? ' class="on"' : '') + '></i>';
+      return '<div class="line"><div class="ln">' + l.n + '<span>' + l.d.join('-') + '</span></div><div class="bar">' + bar + '</div><div class="lv">' + s + ' · ' + lv + '</div></div>';
+    }).join('');
+
+    // Cycles
+    const now = new Date(), per = c.per;
+    $('today').textContent = 'На ' + now.getDate() + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+    $('cycles').innerHTML =
+      '<div class="cycle"><span class="n">' + per.py + '</span><span class="k">Личный год ' + per.year + '</span><span class="t">' + PY[per.py][0] + '</span><p>' + PY[per.py][1] + '</p></div>' +
+      '<div class="cycle"><span class="n">' + per.pm + '</span><span class="k">Личный месяц</span><span class="t">' + PY[per.pm][0] + '</span><p>' + PM[per.pm] + '</p></div>' +
+      '<div class="cycle"><span class="n">' + per.pd + '</span><span class="k">Личный день</span><span class="t">' + PY[per.pd][0] + '</span><p>' + PM[per.pd] + '</p></div>';
+  }
+
+  function renderDetail() {
+    const n = current.nums[selected], K = KINDS[selected];
+    if (!n) {
+      $('detail').innerHTML = '<div class="big">—</div><div class="detail-body"><p class="kind">' + K.t + '</p><p class="ctx">' + K.ctx + '</p><p class="txt">Введите полное имя, чтобы рассчитать это число.</p></div>';
+      return;
+    }
+    const d = M[n.v], master = MASTER.has(n.v);
+    $('detail').innerHTML =
+      '<div class="big' + (master ? ' master' : '') + '">' + n.v + (master ? '<small>мастер-число</small>' : '') + '</div>' +
+      '<div class="detail-body">' +
+        '<p class="kind">' + K.t + '</p>' +
+        '<h4>' + d.a + '</h4>' +
+        '<p class="ctx">' + K.ctx + '</p>' +
+        '<div class="chips">' + d.k.map((x) => '<span class="chip">' + x + '</span>').join('') + '</div>' +
+        '<p class="txt">' + d.t + '</p>' +
+        '<div class="pair"><div class="plus"><h5>Сильные стороны</h5><p>' + d.p + '</p></div><div class="minus"><h5>Над чем работать</h5><p>' + d.m + '</p></div></div>' +
+        '<div class="steps"><div class="h">Как посчитано</div>' + n.steps.map((s) => '<div>' + s + '</div>').join('') + '</div>' +
+      '</div>';
+  }
+
+  $('tiles').addEventListener('click', (e) => {
+    const b = e.target.closest('.tile'); if (!b) return;
+    selected = b.dataset.k;
+    document.querySelectorAll('.tile').forEach((t) => t.setAttribute('aria-pressed', String(t.dataset.k === selected)));
+    renderDetail();
+  });
+
+  function onEdit() { $('sampleTag').hidden = true; compute(); }
+  $('name').addEventListener('input', onEdit);
+  $('dob').addEventListener('input', onEdit);
+  $('dob').addEventListener('change', onEdit);
+  $('form').addEventListener('submit', (e) => e.preventDefault());
+
+  $('sampleBtn').addEventListener('click', () => {
+    $('name').value = SAMPLE.name; $('dob').value = SAMPLE.dob; $('sampleTag').hidden = false; compute();
+  });
+
+  function summary() {
+    const c = current; if (!c) return '';
+    const L = [(c.name || 'Без имени') + ', ' + c.psy.work.date];
+    for (const k of Object.keys(KINDS)) { const n = c.nums[k]; if (n) L.push(KINDS[k].t + ': ' + n.v + ' — ' + M[n.v].a); }
+    L.push('Квадрат Пифагора: ' + [1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => CELL[d].n + ' ' + (c.psy.counts[d] ? String(d).repeat(c.psy.counts[d]) : '—')).join(', '));
+    L.push('Личный год ' + c.per.year + ': ' + c.per.py + ' — ' + PY[c.per.py][0]);
+    return L.join('\n');
+  }
+  function toast(msg) { $('toast').textContent = msg; clearTimeout(toast.t); toast.t = setTimeout(() => { $('toast').textContent = ''; }, 2400); }
+  $('copyBtn').addEventListener('click', () => {
+    const text = summary();
+    const fallback = () => {
+      const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+      let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+      ta.remove(); toast(ok ? 'Скопировано' : 'Не удалось скопировать');
+    };
+    try {
+      navigator.clipboard.writeText(text).then(() => toast('Скопировано'), fallback);
+    } catch (e) { fallback(); }
+  });
+
+  // Init
+  buildAlpha();
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('pyth-num') || 'null'); } catch (e) {}
+  if (saved && saved.dob && (saved.name !== SAMPLE.name || saved.dob !== SAMPLE.dob)) {
+    $('name').value = saved.name || ''; $('dob').value = saved.dob; $('sampleTag').hidden = true;
+  } else {
+    $('name').value = SAMPLE.name; $('dob').value = SAMPLE.dob;
+  }
+  compute();
+})();
+</script>
+
+</body></html>

@@ -1,11 +1,11 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Числа Пифагора</title>
+<title>Numerology 2</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Forum&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: инструмент из двух колонок — слева «вход» (имя и дата), справа результаты: числа → подробно → квадрат Пифагора → циклы */
+/* Layout: одна колонка-«тетрадь расчёта»: дата → итоговые числа этапа → журнал действий по шагам */
 :root {
   --bg: #EDF1ED;
   --surface: #FAFCF9;
@@ -17,6 +17,11 @@
   --accent-soft: #DCE9E4;
   --gold: #9A6A14;
   --gold-soft: #F3E8CF;
+  --danger: #B3402F;
+  /* Цвета комбинаций для поиска совпадений (этап 9) */
+  --p1: #E03131; --p2: #1971C2; --p3: #2F9E44; --p4: #9C36B5; --p5: #E8590C;
+  --p6: #0B7285; --p7: #C2255C; --p8: #4C6EF5; --p9: #66A80F; --p10: #8B5A2B;
+  --p11: #E0A100; --p12: #495057;
   --f-display: "Forum", "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --f-body: "Golos Text", "Segoe UI", Roboto, system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -24,13 +29,19 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0D1614; --surface: #14201D; --well: #1B2925; --ink: #E2EBE6; --muted: #92A59F;
-    --line: #2A3B36; --accent: #72C2B1; --accent-soft: #1C3530; --gold: #DDAE55; --gold-soft: #33291A;
+    --line: #2A3B36; --accent: #72C2B1; --accent-soft: #1C3530; --gold: #DDAE55; --gold-soft: #33291A; --danger: #F08A78;
+    --p1: #FF6B6B; --p2: #4DABF7; --p3: #51CF66; --p4: #DA77F2; --p5: #FF922B;
+    --p6: #3BC9DB; --p7: #F06595; --p8: #91A7FF; --p9: #A9E34B; --p10: #D4A373;
+    --p11: #FFD43B; --p12: #CED4DA;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0D1614; --surface: #14201D; --well: #1B2925; --ink: #E2EBE6; --muted: #92A59F;
-  --line: #2A3B36; --accent: #72C2B1; --accent-soft: #1C3530; --gold: #DDAE55; --gold-soft: #33291A;
+  --line: #2A3B36; --accent: #72C2B1; --accent-soft: #1C3530; --gold: #DDAE55; --gold-soft: #33291A; --danger: #F08A78;
+    --p1: #FF6B6B; --p2: #4DABF7; --p3: #51CF66; --p4: #DA77F2; --p5: #FF922B;
+    --p6: #3BC9DB; --p7: #F06595; --p8: #91A7FF; --p9: #A9E34B; --p10: #D4A373;
+    --p11: #FFD43B; --p12: #CED4DA;
   color-scheme: dark;
 }
 
@@ -45,42 +56,40 @@ body {
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 28px; }
+.wrap { max-width: 860px; margin: 0 auto; display: grid; gap: 28px; }
 
-/* Header */
 .masthead { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .masthead svg { flex: none; }
-.masthead h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(32px, 5vw, 46px); line-height: 1; margin: 0; letter-spacing: 0.01em; text-wrap: balance; }
+.masthead h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(32px, 5vw, 46px); line-height: 1; margin: 0; letter-spacing: 0.01em; }
 .masthead p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
 
-.app { display: grid; grid-template-columns: minmax(260px, 320px) minmax(0, 1fr); gap: 28px; align-items: start; }
-@media (max-width: 880px) { .app { grid-template-columns: minmax(0, 1fr); } }
-
-/* Input panel */
-.panel {
+/* Input */
+.entry {
   background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
-  padding: 20px; display: grid; gap: 18px;
-  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px);
+  padding: 18px 20px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 20px;
 }
-@media (max-width: 880px) { .panel { position: static; } }
-.field { display: grid; gap: 6px; }
-.label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 500; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+/* Подпись, поле и расшифровка даты — в первой колонке; кнопки во второй, на одной строке с полем и той же высоты */
+.field { display: contents; }
+.field .label { grid-column: 1; grid-row: 1; }
+#dob { grid-column: 1; grid-row: 2; }
+.readable { grid-column: 1; grid-row: 3; }
+.actions { grid-column: 2; grid-row: 2; }
+@media (max-width: 560px) {
+  .entry { grid-template-columns: minmax(0, 1fr); }
+  .actions { grid-column: 1; grid-row: 4; }
+}
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 500; display: flex; gap: 8px; align-items: center; }
 .sample { text-transform: none; letter-spacing: 0; font-size: 11px; background: var(--gold-soft); color: var(--gold); padding: 1px 8px; border-radius: 99px; }
-input[type="text"], input[type="date"] {
-  width: 100%; font: inherit; font-size: 16px; color: var(--ink);
-  background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px;
+#dob {
+  width: 100%; font-family: var(--f-mono); font-size: 22px; letter-spacing: 0.04em; color: var(--ink);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
 }
-input:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.hint { font-size: 12.5px; color: var(--muted); margin: 0; }
-.err { font-size: 12.5px; color: #B3402F; margin: 0; }
-details.alpha { border-top: 1px solid var(--line); padding-top: 14px; }
-details.alpha summary { cursor: pointer; font-size: 13.5px; font-weight: 500; color: var(--accent); }
-.alpha-wrap { overflow-x: auto; margin-top: 10px; }
-.alpha table { border-collapse: collapse; font-family: var(--f-mono); font-size: 12.5px; width: 100%; }
-.alpha th, .alpha td { border: 1px solid var(--line); text-align: center; padding: 4px 0; min-width: 24px; }
-.alpha th { color: var(--accent); background: var(--accent-soft); font-weight: 500; }
-.alpha .cap { font-family: var(--f-body); font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
-.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+#dob[aria-invalid="true"] { border-color: var(--danger); }
+.readable { font-size: 13px; color: var(--muted); margin: 0; min-height: 1.4em; }
+.readable.err { color: var(--danger); }
+.actions { display: flex; gap: 8px; align-items: stretch; position: relative; }
+.actions .btn { padding-inline: 18px; }
+.actions .toast { position: absolute; top: 100%; right: 0; margin-top: 6px; white-space: nowrap; }
 .btn {
   font: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer;
   border-radius: 10px; padding: 9px 14px; border: 1px solid var(--line);
@@ -88,110 +97,183 @@ details.alpha summary { cursor: pointer; font-size: 13.5px; font-weight: 500; co
 }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
 .btn:hover { border-color: var(--accent); }
+input:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.toast { font-size: 12.5px; color: var(--accent); }
 
-/* Results */
-.results { display: grid; gap: 32px; min-width: 0; }
-.who { display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap; }
-.who h2 { font-family: var(--f-display); font-weight: 400; font-size: clamp(24px, 3.4vw, 32px); margin: 0; line-height: 1.15; text-wrap: balance; overflow-wrap: anywhere; }
-.who span { color: var(--muted); font-size: 14px; }
+/* Stage */
 section { display: grid; gap: 14px; min-width: 0; }
 .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
-.sec-head h3 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; color: var(--accent); }
+.sec-head h2 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 28px; line-height: 1.1; }
 .sec-head p { margin: 0; font-size: 13px; color: var(--muted); }
 
-/* Core tiles */
-.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 560px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.tile {
-  font: inherit; color: inherit; text-align: left; cursor: pointer;
-  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
-  padding: 12px 14px 14px; display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; align-items: center;
-  transition: border-color .15s, background-color .15s;
+/* Recorded numbers */
+.record { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 560px) { .record { grid-template-columns: minmax(0, 1fr); } }
+.num {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px 16px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 16px; align-items: center;
 }
-.tile:hover { border-color: var(--accent); }
-.tile[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
-.tile .n { grid-row: span 2; font-family: var(--f-display); font-size: 50px; line-height: 1; color: var(--accent); min-width: 1.1ch; font-variant-numeric: lining-nums tabular-nums; }
-.tile .n.master { color: var(--gold); }
-.tile .t { font-size: 13.5px; font-weight: 600; line-height: 1.25; }
-.tile .a { font-size: 12.5px; color: var(--muted); line-height: 1.3; }
+.num .n { grid-row: span 2; font-family: var(--f-display); font-size: 64px; line-height: .9; color: var(--accent); min-width: 0.8ch; text-align: center; }
+.num .t { font-weight: 600; font-size: 15px; line-height: 1.25; }
+.num .s { font-size: 12.5px; color: var(--muted); font-family: var(--f-mono); }
 
-/* Detail */
-.detail { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 28px; }
-@media (max-width: 620px) { .detail { grid-template-columns: minmax(0, 1fr); } }
-.big { font-family: var(--f-display); font-size: clamp(96px, 14vw, 150px); line-height: .85; color: var(--accent); text-align: center; min-width: 1.4ch; }
-.big.master { color: var(--gold); }
-.big small { display: block; font-family: var(--f-body); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-top: 12px; line-height: 1.2; }
-.detail-body { display: grid; gap: 12px; min-width: 0; }
-.detail-body .kind { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0; }
-.detail-body h4 { font-family: var(--f-display); font-weight: 400; font-size: 30px; line-height: 1.1; margin: 0; }
-.detail-body .ctx { margin: 0; color: var(--muted); font-size: 14px; }
-.detail-body .txt { margin: 0; max-width: 64ch; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { font-size: 12.5px; padding: 3px 10px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
-.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-@media (max-width: 520px) { .pair { grid-template-columns: minmax(0, 1fr); } }
-.pair h5 { margin: 0 0 2px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
-.pair .plus h5 { color: var(--accent); }
-.pair .minus h5 { color: var(--gold); }
-.pair p { margin: 0; font-size: 14px; }
-.steps { background: var(--well); border-radius: 10px; padding: 12px 14px; font-family: var(--f-mono); font-size: 12.5px; line-height: 1.8; overflow-x: auto; }
-.steps .h { font-family: var(--f-body); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 2px; }
-.steps div { white-space: nowrap; }
-.steps sub { font-size: 9px; color: var(--accent); vertical-align: -2px; margin-right: 3px; }
-.steps b { color: var(--accent); font-weight: 500; }
+.memo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+.memo .pill { font-family: var(--f-mono); font-size: 12.5px; background: var(--well); color: var(--ink); padding: 3px 10px; border-radius: 99px; }
 
-/* Pythagorean square */
-.psy { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 24px; align-items: start; }
-@media (max-width: 760px) { .psy { grid-template-columns: minmax(0, 1fr); } }
-.work { font-family: var(--f-mono); font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
-.work b { color: var(--ink); font-weight: 500; }
-.grid9 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) 34px; gap: 4px; max-width: 340px; }
-.cell {
-  aspect-ratio: 1; max-width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
-  display: grid; grid-template-rows: auto 1fr; padding: 6px 8px; min-width: 0;
+/* Action ledger */
+.ledger { list-style: none; margin: 0; padding: 0; display: grid; }
+.act { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 4px 16px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: start; }
+.act:last-child { border-bottom: 0; }
+.act .no { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
+.act.rec .no { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.act .body { display: grid; gap: 6px; min-width: 0; }
+.act h3 { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.35; padding-top: 5px; }
+.act .why { margin: 0; font-size: 13.5px; color: var(--muted); }
+.calc { font-family: var(--f-mono); font-size: 13.5px; background: var(--well); border-radius: 8px; padding: 8px 12px; overflow-x: auto; white-space: nowrap; }
+.calc .eq { color: var(--muted); }
+.calc b { color: var(--accent); font-weight: 500; }
+.res { display: grid; justify-items: center; gap: 2px; padding-top: 2px; min-width: 76px; }
+.res .v { font-family: var(--f-display); font-size: 40px; line-height: 1; color: var(--ink); }
+.act.rec .res .v { color: var(--accent); }
+.tag { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+.tag.keep { background: var(--well); color: var(--muted); }
+.tag.write { background: var(--accent-soft); color: var(--accent); }
+@media (max-width: 480px) {
+  .act { grid-template-columns: 36px minmax(0, 1fr); }
+  .res { grid-column: 2; justify-items: start; grid-auto-flow: column; align-items: center; gap: 10px; }
 }
-.cell .cl { font-size: 10.5px; color: var(--muted); line-height: 1.2; }
-.cell .cv { font-family: var(--f-display); font-size: clamp(18px, 4.6vw, 26px); color: var(--accent); align-self: center; justify-self: center; letter-spacing: 0.02em; overflow-wrap: anywhere; text-align: center; line-height: 1.05; }
-.cell .cv.empty { color: var(--line); }
-.sum { display: grid; place-items: center; font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
-.sum.col { padding-top: 2px; }
-.sum b { color: var(--ink); font-weight: 500; font-size: 13px; }
-.readings { display: grid; gap: 0; }
-.reading { display: grid; grid-template-columns: 26px 110px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; align-items: baseline; }
-.reading:last-child { border-bottom: 0; }
-@media (max-width: 420px) { .reading { grid-template-columns: 26px minmax(0, 1fr); } .reading .rt { grid-column: 2; } }
-.reading .rd { font-family: var(--f-display); font-size: 20px; color: var(--accent); line-height: 1; }
-.reading .rn { font-weight: 600; font-size: 13px; }
-.reading .rn span { display: block; font-weight: 400; color: var(--muted); font-family: var(--f-mono); font-size: 11.5px; }
-.lines { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-@media (max-width: 620px) { .lines { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.line { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 4px; }
-.line .ln { font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; gap: 6px; }
-.line .ln span { font-family: var(--f-mono); font-weight: 400; color: var(--muted); font-size: 11.5px; }
-.bar { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; }
-.bar i { height: 5px; border-radius: 2px; background: var(--well); }
-.bar i.on { background: var(--accent); }
-.line .lv { font-size: 12px; color: var(--muted); }
 
-/* Cycles */
-.cycles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 680px) { .cycles { grid-template-columns: minmax(0, 1fr); } }
-.cycle { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 14px; align-items: start; }
-.cycle .n { grid-row: span 3; font-family: var(--f-display); font-size: 46px; line-height: 1; color: var(--accent); }
-.cycle .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.cycle .t { font-weight: 600; font-size: 14px; }
-.cycle p { margin: 0; font-size: 13.5px; color: var(--muted); }
+/* Stage 2: years table */
+.yearnav { display: flex; align-items: center; gap: 6px; }
+.yearnav .btn { padding: 5px 11px; font-family: var(--f-mono); }
+.yearnav .btn[disabled] { opacity: .4; cursor: default; }
+.yt-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+table.yt { border-collapse: collapse; width: 100%; min-width: 620px; table-layout: fixed; font-variant-numeric: tabular-nums; }
+.yt th, .yt td { border-bottom: 1px solid var(--line); border-left: 1px solid var(--line); padding: 10px 8px; text-align: center; vertical-align: middle; }
+.yt tr:last-child th, .yt tr:last-child td { border-bottom: 0; }
+.yt th:first-child { border-left: 0; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 500; padding-left: 16px; width: 24%; }
+.yt thead th { font-family: var(--f-mono); font-size: 15px; font-weight: 500; color: var(--ink); }
+.yt thead th:first-child { font-family: var(--f-body); }
+.yt .cur { background: var(--accent-soft); }
+.yt thead th.cur { color: var(--accent); }
+.yt .cur-mark { display: block; font-family: var(--f-body); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 500; }
+.yt .big { font-family: var(--f-display); font-size: 34px; line-height: 1; color: var(--accent); }
+.yt .wd { display: grid; justify-items: center; gap: 2px; }
+.yt .wd .big { color: var(--gold); }
+.yt .wd span:last-child { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.yt .fn { color: var(--gold); font-size: 11px; vertical-align: super; }
+.yt tr.base th { color: var(--ink); font-weight: 600; }
+.yt tr.base.first th, .yt tr.base.first td { border-top: 2px solid var(--accent); }
+.yt tr.base .big { font-size: 40px; color: var(--ink); }
+.yt tr.base td.cur .big { color: var(--accent); }
+.yt tr.age .agev { font-family: var(--f-mono); font-size: 20px; color: var(--ink); }
+/* Окно событийности: толстая рамка вокруг блока 3×3 (border-collapse — побеждает более толстая граница) */
+.yt td.wl { border-left: 3px solid var(--ink); }
+.yt td.wr { border-right: 3px solid var(--ink); }
+.yt td.wt, .yt tr.base.first td.wt { border-top: 3px solid var(--ink); }
+.yt td.wb, .yt tr:last-child td.wb { border-bottom: 3px solid var(--ink); }
+.swatch.frame { background: transparent; box-shadow: inset 0 0 0 3px var(--ink); border-radius: 2px; }
+.keys { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.key { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--muted); flex-wrap: wrap; }
+.key .fyears { font-family: var(--f-mono); font-weight: 500; color: var(--gold); }
+.key .frange { font-size: 12px; }
+.yt td.match { background: var(--gold-soft); box-shadow: inset 0 0 0 2px var(--gold); }
+.yt tr.base td.match .big { color: var(--gold); }
+.match-mark { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); font-weight: 600; margin-top: 2px; }
+.match-note { margin: 0; font-size: 13.5px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.swatch { width: 14px; height: 14px; border-radius: 4px; background: var(--gold-soft); box-shadow: inset 0 0 0 2px var(--gold); flex: none; }
+.bc-row.match .calc { background: var(--gold-soft); box-shadow: inset 0 0 0 1px var(--gold); }
+.bc-row.match .calc b { color: var(--gold); }
+.basecalc { display: grid; gap: 6px; }
+table.yt.mt { min-width: 760px; }
+.yt.mt th:first-child { width: 20%; }
+.yt.mt thead th { font-size: 14px; }
+.yt.mt .big { font-size: 28px; }
+.yt.mt tr.base .big { font-size: 30px; }
+.yt.mt tr.base:first-child th, .yt.mt tr.base:first-child td { border-top: 2px solid var(--accent); }
+.yt .mred { display: block; font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+.yt .mred::before { content: "→ "; }
+.yt th .rv { display: inline-block; font-family: var(--f-mono); color: var(--accent); text-transform: none; letter-spacing: 0; margin-left: 4px; }
+.bc-row.mrow { grid-template-columns: 30px minmax(0, 1fr); }
+
+/* Этап 9: совпадения */
+.mt-stage { position: relative; min-width: 760px; }
+.mt-overlay { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+.mp { display: grid; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.mp-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+.mp-head b { font-family: var(--f-mono); color: var(--accent); font-weight: 500; }
+.mp-head .btns { display: flex; gap: 6px; }
+.btn.sm { padding: 5px 10px; font-size: 12.5px; }
+.mp-group { display: grid; gap: 6px; }
+.mp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.mchip { display: inline-flex; align-items: center; gap: 8px; padding: 5px 11px 5px 9px; border: 1px solid var(--line); border-radius: 99px; cursor: pointer; font-size: 13px; user-select: none; }
+.mchip:has(input:checked) { border-color: var(--pc); box-shadow: inset 0 0 0 1px var(--pc); }
+.mchip:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mchip input { accent-color: var(--pc); margin: 0; width: 15px; height: 15px; cursor: inherit; }
+.mchip .glyph { flex: none; }
+.mchip .md { font-family: var(--f-mono); font-weight: 500; color: var(--ink); }
+.mchip .ml { color: var(--muted); font-size: 12px; }
+.mchip .mc { font-family: var(--f-mono); font-size: 12px; color: var(--pc); font-weight: 500; }
+.mchip.none { opacity: .5; cursor: default; }
+.mchip.dash:has(input:checked) { box-shadow: none; border-style: dashed; border-width: 2px; }
+.mchip.none .mc { color: var(--muted); }
+.bc-row.mrow .calc { white-space: normal; line-height: 1.7; }
+details.more { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+details.more summary {
+  cursor: pointer; list-style: none; padding: 12px 16px; font-size: 14px; font-weight: 500; color: var(--accent);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform .15s; flex: none; }
+details.more[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
+details.more summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 12px; }
+.more-body { display: grid; gap: 18px; padding: 4px 16px 16px; border-top: 1px solid var(--line); padding-top: 14px; }
+.bc-row { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; align-items: center; }
+.bc-y { font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
+.bc-row.cur .bc-y { color: var(--accent); font-weight: 500; }
+.bc-row .calc { padding: 6px 12px; font-size: 13px; }
+.bc-row.cur .calc { background: var(--accent-soft); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px; }
+.legend span { font-size: 12.5px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); }
+.legend span b { font-family: var(--f-mono); font-weight: 500; color: var(--ink); margin-left: 4px; }
+.legend span.used { border-color: var(--gold); background: var(--gold-soft); color: var(--ink); }
+.legend span.used b { color: var(--gold); }
+.legend-cap { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0; }
 
 .note { font-size: 12.5px; color: var(--muted); margin: 0; max-width: 70ch; }
-.toast { font-size: 12.5px; color: var(--accent); align-self: center; }
 
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* Лист для PDF: всегда светлый, вне экрана */
+.pdf-sheet {
+  --bg: #FFFFFF; --surface: #FFFFFF; --well: #EEF2EF; --ink: #16302A; --muted: #586B65;
+  --line: #C9D4CD; --accent: #1E5D52; --accent-soft: #DCE9E4; --gold: #9A6A14; --gold-soft: #F3E8CF;
+  --p1: #E03131; --p2: #1971C2; --p3: #2F9E44; --p4: #9C36B5; --p5: #E8590C;
+  --p6: #0B7285; --p7: #C2255C; --p8: #4C6EF5; --p9: #66A80F; --p10: #8B5A2B;
+  --p11: #E0A100; --p12: #495057;
+  position: fixed; left: -12000px; top: 0; width: 1000px; padding: 36px 40px;
+  background: #FFFFFF; color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  display: grid; gap: 22px; color-scheme: light;
+}
+.pdf-sheet section { display: grid; gap: 10px; }
+.pdf-sheet h2 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 24px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.pdf-head { display: grid; gap: 2px; }
+.pdf-head h1 { margin: 0 0 4px; font-family: var(--f-display); font-weight: 400; font-size: 40px; line-height: 1; }
+.pdf-head p { margin: 0; font-size: 16px; }
+.pdf-head .pdf-gen { font-size: 12px; color: var(--muted); }
+.pdf-sheet .yt-wrap { overflow: visible; }
+.pdf-sheet .yt td.match { box-shadow: none; border: 2px solid var(--gold); }
+.pdf-sheet .swatch { box-shadow: none; border: 2px solid var(--gold); }
+.pdf-sheet .swatch.frame { border: 3px solid var(--ink); }
+.pdf-mcap { margin: 4px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.pdf-ml { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+.pdf-mi { display: inline-flex; align-items: center; gap: 6px; }
+.pdf-mi i { display: inline-block; width: 20px; height: 11px; border: 2.5px solid; border-radius: 99px; }
+.pdf-mi b { font-family: var(--f-mono); font-weight: 500; color: var(--ink); }
+.empty { color: var(--muted); font-size: 14px; padding: 20px; border: 1px dashed var(--line); border-radius: 14px; text-align: center; }
 </style>
 
 <div class="wrap">
   <header class="masthead">
     <svg width="48" height="44" viewBox="0 0 48 44" aria-hidden="true">
-      <!-- Тетрактис: 1 + 2 + 3 + 4 = 10 -->
       <g fill="var(--accent)">
         <circle cx="24" cy="5" r="3.4"/>
         <circle cx="18" cy="16" r="3.4"/><circle cx="30" cy="16" r="3.4"/>
@@ -202,391 +284,706 @@ section { display: grid; gap: 14px; min-width: 0; }
       </g>
     </svg>
     <div>
-      <h1>Числа Пифагора</h1>
-      <p>Нумерологический калькулятор: путь, имя, душа, квадрат Пифагора и личные циклы</p>
+      <h1>Numerology</h1>
+      <p>Нумерологический калькулятор по дате рождения</p>
     </div>
   </header>
 
-  <div class="app">
-    <form class="panel" id="form" autocomplete="off">
-      <div class="field">
-        <label class="label" for="name">Полное имя <span class="sample" id="sampleTag">пример</span></label>
-        <input type="text" id="name" placeholder="Имя Отчество Фамилия">
-        <p class="hint">Как в свидетельстве о рождении. Кириллица или латиница.</p>
+  <form class="entry" id="form" autocomplete="off" novalidate>
+    <div class="field">
+      <label class="label" for="dob">Дата рождения <span class="sample" id="sampleTag">пример</span></label>
+      <input type="text" id="dob" inputmode="numeric" placeholder="ДД.ММ.ГГГГ" maxlength="10" aria-describedby="readable">
+      <p class="readable" id="readable" role="status"></p>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" id="sampleBtn">Пример</button>
+      <button type="button" class="btn primary" id="pdfBtn">Экспорт PDF</button>
+      <span class="toast" id="toast" role="status"></span>
+    </div>
+  </form>
+
+  <section id="stage1">
+    <div class="sec-head"><h2>Этап 1</h2><p>Характер, Судьба и Экспрессивность</p></div>
+    <div id="out"></div>
+  </section>
+
+  <section id="stage2">
+    <div class="sec-head">
+      <h2>Этапы 2–7 · Таблица по годам</h2>
+      <div class="yearnav">
+        <button type="button" class="btn" id="yPrev" aria-label="Сдвинуть на год назад">‹</button>
+        <button type="button" class="btn" id="yNow">Текущий год</button>
+        <button type="button" class="btn" id="yNext" aria-label="Сдвинуть на год вперёд">›</button>
       </div>
-      <div class="field">
-        <label class="label" for="dob">Дата рождения</label>
-        <input type="date" id="dob" min="1800-01-01" max="2100-12-31">
-        <p class="err" id="err" hidden></p>
-      </div>
-      <div class="actions">
-        <button type="button" class="btn primary" id="copyBtn">Скопировать итог</button>
-        <button type="button" class="btn" id="sampleBtn">Пример</button>
-        <span class="toast" id="toast" role="status"></span>
-      </div>
-      <details class="alpha">
-        <summary>Таблица букв и чисел</summary>
-        <div class="alpha-wrap" id="alpha"></div>
-      </details>
-    </form>
+    </div>
+    <div id="out2"></div>
+  </section>
 
-    <main class="results" id="results" aria-live="polite">
-      <div class="who"><h2 id="whoName"></h2><span id="whoDate"></span></div>
+  <section id="stage8">
+    <div class="sec-head"><h2>Этап 8 · Месяцы</h2><button type="button" class="btn primary" id="matchBtn">Поиск совпадений</button></div>
+    <div id="out3"></div>
+  </section>
 
-      <section>
-        <div class="sec-head"><h3>Основные числа</h3><p>Нажмите на число, чтобы открыть расшифровку</p></div>
-        <div class="tiles" id="tiles"></div>
-        <article class="detail" id="detail"></article>
-      </section>
+  <section id="stagePairs">
+    <div class="sec-head"><h2>Совпадения пар</h2><button type="button" class="btn primary" id="pairBtn">Поиск пар</button></div>
+    <div id="out4"></div>
+  </section>
 
-      <section>
-        <div class="sec-head"><h3>Квадрат Пифагора</h3><p>Психоматрица по дате рождения</p></div>
-        <div class="work" id="work"></div>
-        <div class="psy">
-          <div class="grid9" id="grid9" role="table" aria-label="Квадрат Пифагора"></div>
-          <div class="readings" id="readings"></div>
-        </div>
-        <div class="lines" id="lines"></div>
-      </section>
-
-      <section>
-        <div class="sec-head"><h3>Личные циклы</h3><p id="today"></p></div>
-        <div class="cycles" id="cycles"></div>
-      </section>
-
-      <p class="note">Нумерология — традиция толкования чисел, а не наука. Используйте расшифровки как повод поразмышлять о себе, а не как прогноз.</p>
-    </main>
-  </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 (function () {
-  const RU = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
-  const EN = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const VOWELS = new Set('АЕЁИОУЫЭЮЯAEIOU'.split(''));
-  const MASTER = new Set([11, 22, 33]);
   const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-  const SAMPLE = { name: 'Анна Сергеевна Иванова', dob: '1990-03-14' };
-
-  const M = {
-    1: { a: 'Лидер', k: ['независимость', 'воля', 'инициатива'], t: 'Энергия начала. Вы идёте первым, принимаете решения быстро и не любите ждать чужого разрешения. Лучше всего раскрываетесь там, где можно открыть новое направление и вести за собой.', p: 'Смелость, самостоятельность, умение запускать проекты.', m: 'Нетерпение, упрямство, трудности с тем, чтобы просить о помощи.' },
-    2: { a: 'Дипломат', k: ['чуткость', 'партнёрство', 'такт'], t: 'Число союза. Вы тонко чувствуете настроение людей и умеете соединять тех, кто не может договориться сам. Сила проявляется в команде и паре, а не в одиночном рывке.', p: 'Эмпатия, терпение, талант посредника.', m: 'Зависимость от чужого мнения, обида вместо прямого разговора.' },
-    3: { a: 'Творец', k: ['самовыражение', 'оптимизм', 'слово'], t: 'Число радости и речи. Вам важно делиться идеями, шутить, рассказывать, создавать. Окружающие тянутся к вашей лёгкости, а лучшие результаты приходят через творчество и общение.', p: 'Красноречие, воображение, умение вдохновлять.', m: 'Разбросанность, поверхностность, страх критики.' },
-    4: { a: 'Строитель', k: ['порядок', 'надёжность', 'труд'], t: 'Число фундамента. Вы цените систему, ясные правила и результат, который можно потрогать. На вас можно положиться: если вы взялись, дело будет доведено до конца.', p: 'Дисциплина, практичность, верность слову.', m: 'Жёсткость, сопротивление переменам, перегрузка работой.' },
-    5: { a: 'Искатель', k: ['свобода', 'перемены', 'любопытство'], t: 'Число движения. Вас манят путешествия, новые люди и впечатления. Рутина утомляет, зато в быстро меняющейся обстановке вы чувствуете себя как рыба в воде.', p: 'Гибкость, находчивость, обаяние.', m: 'Непостоянство, импульсивность, тяга к крайностям.' },
-    6: { a: 'Хранитель', k: ['забота', 'гармония', 'ответственность'], t: 'Число дома и любви. Вы создаёте уют, заботитесь о близких и остро чувствуете несправедливость. Красота и гармония для вас не роскошь, а необходимость.', p: 'Преданность, щедрость, чувство прекрасного.', m: 'Гиперопека, жертвенность, стремление всё контролировать.' },
-    7: { a: 'Мыслитель', k: ['анализ', 'глубина', 'поиск истины'], t: 'Число познания. Вам нужно понять, как всё устроено на самом деле. Вы цените тишину, книги и разговоры по существу, а выводы делаете сами, не принимая чужие на веру.', p: 'Проницательность, интеллект, интуиция исследователя.', m: 'Замкнутость, скептицизм, отстранённость от людей.' },
-    8: { a: 'Стратег', k: ['власть', 'достаток', 'управление'], t: 'Число материального мира. Вы видите ресурсы и умеете превращать усилия в деньги и влияние. Масштабные задачи вас не пугают, а дают силы.', p: 'Деловая хватка, выносливость, организаторский талант.', m: 'Трудоголизм, властность, измерение всего деньгами.' },
-    9: { a: 'Гуманист', k: ['сострадание', 'мудрость', 'служение'], t: 'Число завершения цикла. Вы мыслите широко, сочувствуете людям и хотите сделать мир лучше. Вам легко даются роли наставника, помощника и того, кто видит общую картину.', p: 'Великодушие, широта взглядов, творческий дар.', m: 'Идеализм, трудности с отпусканием прошлого, самопожертвование.' },
-    11: { a: 'Вдохновитель', k: ['интуиция', 'озарение', 'идеализм'], t: 'Мастер-число, усиленная двойка. Вы улавливаете то, что другие ещё не видят, и способны зажигать людей идеей. Высокая чувствительность — и дар, и испытание: важно заземлять вдохновение в конкретные дела.', p: 'Яркая интуиция, харизма, духовная глубина.', m: 'Нервное напряжение, сомнения в себе, оторванность от практики.' },
-    22: { a: 'Мастер-строитель', k: ['масштаб', 'воплощение', 'видение'], t: 'Мастер-число, усиленная четвёрка. Вы способны соединить большую мечту с практичным планом и построить то, что переживёт вас. Нужны терпение и опора на команду.', p: 'Стратегическое видение, огромная работоспособность.', m: 'Давление собственных ожиданий, страх не справиться.' },
-    33: { a: 'Мастер-учитель', k: ['наставничество', 'любовь', 'исцеление'], t: 'Мастер-число, усиленная шестёрка. Ваша сила в бескорыстной заботе и умении учить примером. Люди приходят к вам за поддержкой, поэтому важно не забывать и о себе.', p: 'Сострадание, мудрость, дар поддержки.', m: 'Выгорание, растворение в чужих проблемах.' }
-  };
-
-  const KINDS = {
-    lp: { t: 'Жизненный путь', ctx: 'Главная линия жизни: какие задачи и уроки приходят снова и снова. Считается по дате рождения.' },
-    ex: { t: 'Число имени', ctx: 'Число выражения. Таланты и способности, заложенные в полном имени.' },
-    so: { t: 'Число души', ctx: 'Считается по гласным. Внутренние желания и то, что по-настоящему радует.' },
-    pe: { t: 'Число личности', ctx: 'Считается по согласным. Каким вас видят окружающие при первом знакомстве.' },
-    bd: { t: 'День рождения', ctx: 'Особый дар, который помогает на жизненном пути.' },
-    ma: { t: 'Число зрелости', ctx: 'Сумма пути и имени. К чему жизнь ведёт после 35–40 лет.' }
-  };
-
-  const PY = {
-    1: ['Начало', 'Время новых проектов и смелых решений. Сейте то, что хотите собрать в ближайшие девять лет.'],
-    2: ['Партнёрство', 'Год терпения и отношений. Результаты зреют медленно, помогает сотрудничество.'],
-    3: ['Самовыражение', 'Творчество, общение, радость. Хорошо учиться, выступать и знакомиться.'],
-    4: ['Фундамент', 'Работа, порядок, дисциплина. Укрепляйте здоровье, финансы и быт.'],
-    5: ['Перемены', 'Свобода, поездки, неожиданные повороты. Не держитесь за старое.'],
-    6: ['Ответственность', 'Семья, дом, забота о близких. Время вкладываться в отношения.'],
-    7: ['Осмысление', 'Учёба, уединение, анализ. Меньше суеты, больше внутренней работы.'],
-    8: ['Достижения', 'Карьера, деньги, признание. Пожинайте плоды прежних усилий.'],
-    9: ['Завершение', 'Подведение итогов и отпускание лишнего перед новым циклом.']
-  };
-  const PM = {
-    1: 'Начинайте и решайте.', 2: 'Договаривайтесь и ждите.', 3: 'Общайтесь и творите.', 4: 'Наводите порядок.',
-    5: 'Будьте гибкими.', 6: 'Время для близких.', 7: 'Думайте и учитесь.', 8: 'Действуйте по-деловому.', 9: 'Завершайте начатое.'
-  };
-
-  const CELL = {
-    1: { n: 'Характер', r: ['Характер складывается через опыт и окружение.', 'Мягкий характер, склонность к компромиссам.', 'Уравновешенность: умеет и уступить, и настоять.', 'Твёрдый, решительный характер, ценит своё слово.', 'Сильная воля и лидерство, бывает упрямство.', 'Властность, потребность держать всё под контролем.'] },
-    2: { n: 'Энергия', r: ['Энергии мало, важно беречь силы и отдыхать.', 'Сил хватает на главное, помогает режим.', 'Достаточно энергии для дел и общения.', 'Много энергии, людям рядом с вами тепло.', 'Избыток энергии, нужен выход в спорте и творчестве.'] },
-    3: { n: 'Познание', r: ['Знания легче даются через практику.', 'Интерес к учёбе зависит от настроения.', 'Тяга к точным наукам и аккуратности.', 'Аналитический ум, любовь к порядку и исследованиям.'] },
-    4: { n: 'Здоровье', r: ['Здоровью стоит уделять особое внимание.', 'Средний запас сил, очень помогает спорт.', 'Хорошее здоровье, быстрое восстановление.', 'Крепкое здоровье и выносливость.'] },
-    5: { n: 'Интуиция', r: ['Решения через пробу и ошибку.', 'Логика работает, интуиция приходит с опытом.', 'Развитая интуиция, умение предвидеть.', 'Очень сильная интуиция и стратегическое мышление.'] },
-    6: { n: 'Мастерство', r: ['Ближе умственный, а не ручной труд.', 'Работа руками — скорее по необходимости.', 'Умелые руки, удовольствие от ремесла.', 'Трудолюбие и тяга создавать вещи.'] },
-    7: { n: 'Удача', r: ['Успех приходит через упорный труд.', 'Скромный талант, раскрывается в деле.', 'Яркие способности, везение в начинаниях.', 'Редкий талант и особое везение.'] },
-    8: { n: 'Долг', r: ['Свобода важнее обязательств.', 'Ответственность в разумных пределах.', 'Обострённое чувство долга, заботливость.', 'Готовность отвечать за многих людей.'] },
-    9: { n: 'Память', r: ['Опора на записи и системы, а не на память.', 'Память стоит тренировать.', 'Хорошая память и сообразительность.', 'Отличная память, глубокий ум.'] }
-  };
-  const LINES = [
-    { n: 'Цель', d: [1, 4, 7] }, { n: 'Семья', d: [2, 5, 8] }, { n: 'Привычки', d: [3, 6, 9] },
-    { n: 'Самооценка', d: [1, 2, 3] }, { n: 'Быт и деньги', d: [4, 5, 6] }, { n: 'Талант', d: [7, 8, 9] },
-    { n: 'Духовность', d: [1, 5, 9] }, { n: 'Темперамент', d: [3, 5, 7] }
-  ];
-
+  const SAMPLE = '18.02.1988';
   const $ = (id) => document.getElementById(id);
-  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const digitSum = (n) => String(Math.abs(n)).split('').reduce((a, c) => a + (+c), 0);
-  function chain(n, keepMaster = true) {
-    const out = [n];
-    while (n > 9 && !(keepMaster && MASTER.has(n))) { n = digitSum(n); out.push(n); }
-    return out;
-  }
-  const last = (a) => a[a.length - 1];
-  const arrow = (a) => a.join(' → ');
 
-  function letterVal(ch) {
-    const u = ch.toUpperCase();
-    let i = RU.indexOf(u); if (i >= 0) return i % 9 + 1;
-    i = EN.indexOf(u); if (i >= 0) return i % 9 + 1;
-    return 0;
-  }
+  const dsum = (s) => String(s).split('').reduce((a, c) => a + (+c), 0);
 
-  function nameNumber(name, mode) {
-    const words = name.trim().split(/\s+/).filter(Boolean);
-    const lines = []; const parts = [];
-    for (const w of words) {
-      const letters = [];
-      for (const ch of w) {
-        const v = letterVal(ch); if (!v) continue;
-        const isV = VOWELS.has(ch.toUpperCase());
-        if (mode === 'v' && !isV) continue;
-        if (mode === 'c' && isV) continue;
-        letters.push({ ch: ch.toUpperCase(), v });
-      }
-      if (!letters.length) continue;
-      const s = letters.reduce((a, l) => a + l.v, 0);
-      const c = chain(s);
-      parts.push(last(c));
-      lines.push(letters.map((l) => esc(l.ch) + '<sub>' + l.v + '</sub>').join('') + ' = ' + arrow(c));
+  // Складывает слагаемые и сводит результат к одной цифре (1–9).
+  // sumChain([1,9,8,8]) → { v: 8, steps: ["1+9+8+8 = 26", "2+6 = 8"] }
+  function sumChain(terms) {
+    let n = terms.reduce((a, b) => a + b, 0);
+    const steps = [terms.join('+') + ' = ' + n];
+    while (n > 9) {
+      const next = dsum(n);
+      steps.push(String(n).split('').join('+') + ' = ' + next);
+      n = next;
     }
-    if (!parts.length) return null;
-    const total = parts.reduce((a, b) => a + b, 0);
-    const c = chain(total);
-    lines.push('Итого: ' + parts.join(' + ') + ' = <b>' + arrow(c) + '</b>');
-    return { v: last(c), steps: lines };
+    return { v: n, steps };
+  }
+  const digits = (s) => String(s).split('').map(Number);
+  function show(prefix, r) {
+    const last = r.steps.length - 1;
+    return (prefix ? '<span class="eq">' + prefix + '</span> ' : '') + r.steps.map((x, i) =>
+      (i ? ' <span class="eq">→</span> ' : '') + (i === last ? x.replace(/= (\d+)$/, '= <b>$1</b>') : x)).join('');
   }
 
-  function lifePath(d, m, y) {
-    const cd = chain(d), cm = chain(m), cy = chain(y);
-    const s = last(cd) + last(cm) + last(cy);
-    const cs = chain(s);
-    return {
-      v: last(cs),
-      steps: [
-        'День ' + String(d).padStart(2, '0') + ': ' + arrow(cd),
-        'Месяц ' + String(m).padStart(2, '0') + ': ' + arrow(cm),
-        'Год ' + y + ': ' + arrow(cy),
-        'Сумма: ' + last(cd) + ' + ' + last(cm) + ' + ' + last(cy) + ' = <b>' + arrow(cs) + '</b>'
-      ]
-    };
-  }
-
-  function psychomatrix(d, m, y) {
+  function stage1(d, m, y) {
     const dd = String(d).padStart(2, '0'), mm = String(m).padStart(2, '0'), yy = String(y);
-    const s = dd + mm + yy;
-    const n1 = s.split('').reduce((a, c) => a + (+c), 0);
-    const n2 = digitSum(n1);
-    let n3, n3txt;
-    if (y < 2000) {
-      const first = +(dd.replace(/^0/, '')[0]);
-      n3 = Math.abs(n1 - 2 * first);
-      n3txt = n1 + ' − 2×' + first + ' = ' + n3;
-    } else {
-      n3 = n1 + 19;
-      n3txt = n1 + ' + 19 = ' + n3;
-    }
-    const n4 = digitSum(n3);
-    const all = s + n1 + n2 + n3 + n4;
-    const counts = {}; for (let i = 1; i <= 9; i++) counts[i] = 0;
-    for (const ch of all) { const v = +ch; if (v) counts[v]++; }
-    return { counts, work: { n1, n2, n3, n4, n3txt, s, date: dd + '.' + mm + '.' + yy } };
+    const day = sumChain(digits(dd));                       // 1. Характер
+    const mon = sumChain(digits(mm));                       // 2. месяц — запоминаем
+    const year = sumChain(digits(yy));                      // 3. год — запоминаем
+    const fate = sumChain([day.v, mon.v, year.v]);          // 4. Судьба
+    const expr = sumChain([day.v, mon.v]);                  // 5. Экспрессивность
+    return { dd, mm, yy, day, mon, year, fate, expr };
   }
 
-  function personal(d, m, now) {
-    const year = now.getFullYear();
-    const py = last(chain(last(chain(d, false)) + last(chain(m, false)) + last(chain(year, false)), false));
-    const pm = last(chain(py + now.getMonth() + 1, false));
-    const pd = last(chain(pm + now.getDate(), false));
-    return { py, pm, pd, year };
-  }
-
-  // Alphabet table
-  function buildAlpha() {
-    const row = (src, label) => {
-      const cols = Array.from({ length: 9 }, () => []);
-      src.split('').forEach((ch, i) => cols[i % 9].push(ch));
-      const depth = Math.max(...cols.map((c) => c.length));
-      let h = '<p class="cap">' + label + '</p><table><tr>' + cols.map((_, i) => '<th>' + (i + 1) + '</th>').join('') + '</tr>';
-      for (let r = 0; r < depth; r++) h += '<tr>' + cols.map((c) => '<td>' + (c[r] || '') + '</td>').join('') + '</tr>';
-      return h + '</table>';
-    };
-    $('alpha').innerHTML = row(RU, 'Кириллица') + row(EN, 'Латиница') + '<p class="cap">Гласные: А Е Ё И О У Ы Э Ю Я · A E I O U</p>';
-  }
-
-  let selected = 'lp';
-  let current = null;
-
-  function parseDate(v) {
-    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || '');
-    if (!m) return null;
-    const y = +m[1], mo = +m[2], d = +m[3];
-    if (y < 1800 || y > 2100 || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  function parse(v) {
+    const m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(v.trim());
+    if (!m) return { err: 'Введите дату в формате ДД.ММ.ГГГГ, например 18.02.1988.' };
+    const d = +m[1], mo = +m[2], y = +m[3];
+    if (mo < 1 || mo > 12) return { err: 'Месяц должен быть от 01 до 12.' };
     const dt = new Date(y, mo - 1, d);
-    if (dt.getMonth() !== mo - 1) return null;
-    return { y, m: mo, d };
+    if (d < 1 || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return { err: 'Такого дня нет в календаре. Проверьте число и месяц.' };
+    if (y < 1800 || y > 2100) return { err: 'Год должен быть между 1800 и 2100.' };
+    return { d, m: mo, y };
   }
 
-  function compute() {
-    const name = $('name').value;
-    const date = parseDate($('dob').value);
-    $('err').hidden = !!date;
-    if (!date) { $('err').textContent = 'Укажите дату рождения, например 14.03.1990.'; return; }
-    const { d, m, y } = date;
-    const lp = lifePath(d, m, y);
-    const ex = nameNumber(name, 'a');
-    const so = nameNumber(name, 'v');
-    const pe = nameNumber(name, 'c');
-    const bdc = chain(d);
-    const bd = { v: last(bdc), steps: ['День рождения ' + d + ': <b>' + arrow(bdc) + '</b>'] };
-    let ma = null;
-    if (ex) { const c = chain(lp.v + ex.v); ma = { v: last(c), steps: ['Путь ' + lp.v + ' + Имя ' + ex.v + ' = <b>' + arrow(c) + '</b>'] }; }
-    current = { name: name.trim(), date, nums: { lp, ex, so, pe, bd, ma }, psy: psychomatrix(d, m, y), per: personal(d, m, new Date()) };
-    render();
-    try { localStorage.setItem('pyth-num', JSON.stringify({ name, dob: $('dob').value })); } catch (e) {}
-  }
+  let current = null;
+  let detailsOpen1 = false;
 
   function render() {
-    const c = current;
-    $('whoName').textContent = c.name || 'Без имени';
-    $('whoDate').textContent = c.date.d + ' ' + MONTHS[c.date.m - 1] + ' ' + c.date.y;
-
-    // Tiles
-    $('tiles').innerHTML = Object.keys(KINDS).map((k) => {
-      const n = c.nums[k];
-      const v = n ? n.v : '—';
-      const master = n && MASTER.has(n.v);
-      return '<button type="button" class="tile" data-k="' + k + '" aria-pressed="' + (k === selected) + '">' +
-        '<span class="n' + (master ? ' master' : '') + '">' + v + '</span>' +
-        '<span class="t">' + KINDS[k].t + '</span>' +
-        '<span class="a">' + (n ? M[n.v].a + (master ? ' · мастер' : '') : 'нужно имя') + '</span></button>';
-    }).join('');
-    renderDetail();
-
-    // Psychomatrix
-    const p = c.psy, w = p.work;
-    $('work').innerHTML =
-      '<span>Дата: <b>' + w.s.split('').join('+') + ' = ' + w.n1 + '</b></span>' +
-      '<span>1-е: <b>' + w.n1 + '</b></span><span>2-е: <b>' + w.n2 + '</b></span>' +
-      '<span>3-е: <b>' + w.n3txt + '</b></span><span>4-е: <b>' + w.n4 + '</b></span>';
-    const order = [[1, 4, 7], [2, 5, 8], [3, 6, 9]];
-    let g = '';
-    order.forEach((row) => {
-      row.forEach((dg) => {
-        const cnt = p.counts[dg];
-        g += '<div class="cell" role="cell"><span class="cl">' + CELL[dg].n + '</span><span class="cv' + (cnt ? '' : ' empty') + '">' +
-          (cnt ? String(dg).repeat(cnt) : 'нет ' + dg) + '</span></div>';
-      });
-      const rs = row.reduce((a, dg) => a + p.counts[dg], 0);
-      g += '<div class="sum" title="Сумма строки"><b>' + rs + '</b></div>';
-    });
-    [[1, 2, 3], [4, 5, 6], [7, 8, 9]].forEach((col) => {
-      g += '<div class="sum col" title="Сумма столбца"><b>' + col.reduce((a, dg) => a + p.counts[dg], 0) + '</b></div>';
-    });
-    g += '<div class="sum col" title="Диагональ 1-5-9"><b>' + (p.counts[1] + p.counts[5] + p.counts[9]) + '</b></div>';
-    $('grid9').innerHTML = g;
-
-    $('readings').innerHTML = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((dg) => {
-      const cnt = p.counts[dg], r = CELL[dg].r;
-      return '<div class="reading"><span class="rd">' + dg + '</span><span class="rn">' + CELL[dg].n +
-        '<span>' + (cnt ? String(dg).repeat(cnt) : '—') + '</span></span><span class="rt">' + r[Math.min(cnt, r.length - 1)] + '</span></div>';
-    }).join('');
-
-    $('lines').innerHTML = LINES.map((l) => {
-      const s = l.d.reduce((a, dg) => a + p.counts[dg], 0);
-      const lv = s <= 2 ? 'выражено слабо' : s <= 4 ? 'выражено умеренно' : s <= 6 ? 'выражено сильно' : 'выражено очень сильно';
-      let bar = ''; for (let i = 0; i < 8; i++) bar += '<i' + (i < s ? ' class="on"' : '') + '></i>';
-      return '<div class="line"><div class="ln">' + l.n + '<span>' + l.d.join('-') + '</span></div><div class="bar">' + bar + '</div><div class="lv">' + s + ' · ' + lv + '</div></div>';
-    }).join('');
-
-    // Cycles
-    const now = new Date(), per = c.per;
-    $('today').textContent = 'На ' + now.getDate() + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear();
-    $('cycles').innerHTML =
-      '<div class="cycle"><span class="n">' + per.py + '</span><span class="k">Личный год ' + per.year + '</span><span class="t">' + PY[per.py][0] + '</span><p>' + PY[per.py][1] + '</p></div>' +
-      '<div class="cycle"><span class="n">' + per.pm + '</span><span class="k">Личный месяц</span><span class="t">' + PY[per.pm][0] + '</span><p>' + PM[per.pm] + '</p></div>' +
-      '<div class="cycle"><span class="n">' + per.pd + '</span><span class="k">Личный день</span><span class="t">' + PY[per.pd][0] + '</span><p>' + PM[per.pd] + '</p></div>';
-  }
-
-  function renderDetail() {
-    const n = current.nums[selected], K = KINDS[selected];
-    if (!n) {
-      $('detail').innerHTML = '<div class="big">—</div><div class="detail-body"><p class="kind">' + K.t + '</p><p class="ctx">' + K.ctx + '</p><p class="txt">Введите полное имя, чтобы рассчитать это число.</p></div>';
+    const p = parse($('dob').value);
+    const out = $('out');
+    if (p.err) {
+      current = null;
+      const partial = $('dob').value.trim().length < 10;
+      $('dob').setAttribute('aria-invalid', String(!partial));
+      $('readable').className = 'readable' + (partial ? '' : ' err');
+      $('readable').textContent = partial ? 'Например, 18.02.1988' : p.err;
+      out.innerHTML = '<div class="empty">Введите полную дату рождения, и здесь появится расчёт по шагам.</div>';
+      $('out2').innerHTML = '<div class="empty">Таблица по годам появится после ввода даты.</div>';
+      $('out3').innerHTML = '<div class="empty">Таблица по месяцам появится после ввода даты.</div>';
+      updateMatches();
       return;
     }
-    const d = M[n.v], master = MASTER.has(n.v);
-    $('detail').innerHTML =
-      '<div class="big' + (master ? ' master' : '') + '">' + n.v + (master ? '<small>мастер-число</small>' : '') + '</div>' +
-      '<div class="detail-body">' +
-        '<p class="kind">' + K.t + '</p>' +
-        '<h4>' + d.a + '</h4>' +
-        '<p class="ctx">' + K.ctx + '</p>' +
-        '<div class="chips">' + d.k.map((x) => '<span class="chip">' + x + '</span>').join('') + '</div>' +
-        '<p class="txt">' + d.t + '</p>' +
-        '<div class="pair"><div class="plus"><h5>Сильные стороны</h5><p>' + d.p + '</p></div><div class="minus"><h5>Над чем работать</h5><p>' + d.m + '</p></div></div>' +
-        '<div class="steps"><div class="h">Как посчитано</div>' + n.steps.map((s) => '<div>' + s + '</div>').join('') + '</div>' +
+    $('dob').setAttribute('aria-invalid', 'false');
+    $('readable').className = 'readable';
+    $('readable').textContent = p.d + ' ' + MONTHS[p.m - 1] + ' ' + p.y + ' года';
+
+    const r = stage1(p.d, p.m, p.y);
+    current = r;
+
+    const acts = [
+      { rec: true, title: 'Сводим день к одной цифре', why: 'Это цифра Характера. Записываем.', calc: show('День ' + r.dd + ':', r.day), v: r.day.v, tag: 'Характер' },
+      { rec: false, title: 'Сводим месяц к одной цифре', why: 'Пока только запоминаем.', calc: show('Месяц ' + r.mm + ':', r.mon), v: r.mon.v },
+      { rec: false, title: 'Сводим год к одной цифре', why: 'Пока только запоминаем.', calc: show('Год ' + r.yy + ':', r.year), v: r.year.v },
+      { rec: true, title: 'Складываем цифры дня, месяца и года', why: 'Это число Судьбы. Записываем.', calc: show('', r.fate), v: r.fate.v, tag: 'Судьба' },
+      { rec: true, title: 'Складываем цифры дня и месяца', why: 'Это цифра Экспрессивности. Записываем.', calc: show('', r.expr), v: r.expr.v, tag: 'Экспрессивность' }
+    ];
+
+    out.innerHTML =
+      '<div style="display:grid;gap:14px">' +
+        '<div class="record">' +
+          num(r.day.v, 'Характер', 'действие 1') +
+          num(r.fate.v, 'Судьба', 'действие 4') +
+          num(r.expr.v, 'Экспрессивность', 'действие 5') +
+        '</div>' +
+        '<div class="memo">Запомнили для расчётов: <span class="pill">месяц ' + r.mon.v + '</span><span class="pill">год ' + r.year.v + '</span></div>' +
+        '<details class="more" id="calcDetails1"' + (detailsOpen1 ? ' open' : '') + '><summary>Расшифровка подсчетов</summary><div class="more-body">' +
+        '<ol class="ledger">' + acts.map((a, i) =>
+          '<li class="act' + (a.rec ? ' rec' : '') + '">' +
+            '<span class="no">' + (i + 1) + '</span>' +
+            '<div class="body"><h3>' + a.title + '</h3><div class="calc">' + a.calc + '</div><p class="why">' + a.why + '</p></div>' +
+            '<div class="res"><span class="v">' + a.v + '</span><span class="tag ' + (a.rec ? 'write' : 'keep') + '">' + (a.rec ? a.tag : 'запомнить') + '</span></div>' +
+          '</li>').join('') +
+        '</ol>' +
+        '</div></details>' +
       '</div>';
+    $('calcDetails1').addEventListener('toggle', (e) => { detailsOpen1 = e.target.open; });
+
+    renderStage2(p, r);
+    renderStage8(r);
   }
 
-  $('tiles').addEventListener('click', (e) => {
-    const b = e.target.closest('.tile'); if (!b) return;
-    selected = b.dataset.k;
-    document.querySelectorAll('.tile').forEach((t) => t.setAttribute('aria-pressed', String(t.dataset.k === selected)));
-    renderDetail();
-  });
-
-  function onEdit() { $('sampleTag').hidden = true; compute(); }
-  $('name').addEventListener('input', onEdit);
-  $('dob').addEventListener('input', onEdit);
-  $('dob').addEventListener('change', onEdit);
-  $('form').addEventListener('submit', (e) => e.preventDefault());
-
-  $('sampleBtn').addEventListener('click', () => {
-    $('name').value = SAMPLE.name; $('dob').value = SAMPLE.dob; $('sampleTag').hidden = false; compute();
-  });
-
-  function summary() {
-    const c = current; if (!c) return '';
-    const L = [(c.name || 'Без имени') + ', ' + c.psy.work.date];
-    for (const k of Object.keys(KINDS)) { const n = c.nums[k]; if (n) L.push(KINDS[k].t + ': ' + n.v + ' — ' + M[n.v].a); }
-    L.push('Квадрат Пифагора: ' + [1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => CELL[d].n + ' ' + (c.psy.counts[d] ? String(d).repeat(c.psy.counts[d]) : '—')).join(', '));
-    L.push('Личный год ' + c.per.year + ': ' + c.per.py + ' — ' + PY[c.per.py][0]);
-    return L.join('\n');
+  // ---------- Этап 8: месяцы ----------
+  let detailsOpen3 = false;
+  function stage8(r) {
+    const out = [];
+    for (let i = 1; i <= 12; i++) {
+      const mm = String(i).padStart(2, '0');
+      const mv = sumChain(digits(mm));
+      out.push({
+        i, mm, mv,
+        ch: sumChain([mv.v, r.day.v]),
+        fa: sumChain([mv.v, r.fate.v]),
+        ex: sumChain([mv.v, r.expr.v])
+      });
+    }
+    return out;
   }
-  function toast(msg) { $('toast').textContent = msg; clearTimeout(toast.t); toast.t = setTimeout(() => { $('toast').textContent = ''; }, 2400); }
-  $('copyBtn').addEventListener('click', () => {
-    const text = summary();
-    const fallback = () => {
-      const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
-      let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
-      ta.remove(); toast(ok ? 'Скопировано' : 'Не удалось скопировать');
+
+  // Таблица месяцев с прозрачным слоем для контуров совпадений (setKey: 'tri' — тройки, 'pair' — пары)
+  function monthsTableHtml(r, setKey) {
+    const ms = stage8(r);
+    const curM = new Date().getMonth() + 1;
+    const c = (x) => (x.i === curM ? ' class="cur"' : '');
+    const row = (label, val, key, ri) => '<tr class="base"><th scope="row">' + label + ' <span class="rv">' + val + '</span></th>' +
+      ms.map((x) => '<td data-r="' + ri + '" data-c="' + (x.i - 1) + '"' + c(x) + '><span class="big">' + x[key].v + '</span></td>').join('') + '</tr>';
+    return '<div class="yt-wrap"><div class="mt-stage" data-set="' + setKey + '"><table class="yt mt">' +
+        '<thead><tr><th scope="col">Месяцы</th>' + ms.map((x) =>
+          '<th scope="col"' + c(x) + '>' + x.mm + '<span class="mred">' + x.mv.v + '</span></th>').join('') + '</tr></thead>' +
+        '<tbody>' +
+          row('+ Число Характера', r.day.v, 'ch', 0) +
+          row('+ Число Судьбы', r.fate.v, 'fa', 1) +
+          row('+ Число Экспрессии', r.expr.v, 'ex', 2) +
+        '</tbody></table><svg class="mt-overlay" aria-hidden="true"></svg></div></div>';
+  }
+
+  function renderStage8(r) {
+    const ms = stage8(r);
+    const curM = new Date().getMonth() + 1;
+    const short = (s) => s.steps.join(' → ').replace(/= (\d+)$/, '= <b>$1</b>');
+
+    $('out3').innerHTML =
+      '<div style="display:grid;gap:12px">' +
+        monthsTableHtml(r, 'tri') +
+        '<div class="mp" hidden></div>' +
+        '<details class="more" id="calcDetails3"' + (detailsOpen3 ? ' open' : '') + '><summary>Расшифровка подсчетов</summary><div class="more-body">' +
+          '<div class="basecalc">' + ms.map((x) =>
+            '<div class="bc-row mrow' + (x.i === curM ? ' cur' : '') + '"><span class="bc-y">' + x.mm + '</span>' +
+            '<div class="calc"><span class="eq">месяц:</span> ' + short(x.mv).replace(/<\/?b>/g, '') +
+            ' <span class="eq">· Характер:</span> ' + short(x.ch) +
+            ' <span class="eq">· Судьба:</span> ' + short(x.fa) +
+            ' <span class="eq">· Экспрессия:</span> ' + short(x.ex) + '</div></div>').join('') +
+          '<p class="note">Номер месяца сводим к одной цифре (12 → 1+2 = 3), затем прибавляем Характер ' + r.day.v +
+            ', Судьбу ' + r.fate.v + ' или Экспрессию ' + r.expr.v + ' и снова сводим к одной цифре.</p></div>' +
+        '</div></details>' +
+      '</div>';
+    $('calcDetails3').addEventListener('toggle', (e) => { detailsOpen3 = e.target.open; });
+    updateMatches();
+  }
+
+  // ---------- Этап 9: поиск совпадений окна событийности в таблице месяцев ----------
+  // Координаты в окне: [строка, столбец]; строки 0 основной, 1 фоновый, 2 экспрессивный; столбцы — прошлый, текущий, следующий год.
+  // Углы — обход рамки окна по часовой стрелке: угловая клетка вместе с соседями по краю.
+  const PATS = [
+    { id: 'h1', type: 'h', label: 'основной', cells: [[0, 0], [0, 1], [0, 2]] },
+    { id: 'h2', type: 'h', label: 'фоновый', cells: [[1, 0], [1, 1], [1, 2]] },
+    { id: 'h3', type: 'h', label: 'экспрессивный', cells: [[2, 0], [2, 1], [2, 2]] },
+    { id: 'v1', type: 'v', col: 0, cells: [[0, 0], [1, 0], [2, 0]] },
+    { id: 'v2', type: 'v', col: 1, cells: [[0, 1], [1, 1], [2, 1]] },
+    { id: 'v3', type: 'v', col: 2, cells: [[0, 2], [1, 2], [2, 2]] },
+    { id: 'c1', type: 'c', label: 'левый верхний', cells: [[1, 0], [0, 0], [0, 1]] },
+    { id: 'c2', type: 'c', label: 'правый верхний', cells: [[0, 1], [0, 2], [1, 2]] },
+    { id: 'c3', type: 'c', label: 'правый нижний', cells: [[1, 2], [2, 2], [2, 1]] },
+    { id: 'c4', type: 'c', label: 'левый нижний', cells: [[2, 1], [2, 0], [1, 0]] },
+    { id: 'd1', type: 'd', label: 'слева сверху ↘', cells: [[0, 0], [1, 1], [2, 2]] },
+    { id: 'd2', type: 'd', label: 'справа сверху ↙', cells: [[0, 2], [1, 1], [2, 0]] }
+  ];
+  PATS.forEach((pt, k) => { pt.k = k; pt.color = 'p' + (k + 1); });
+  const GROUPS = [['h', 'Горизонтальные'], ['v', 'Вертикальные'], ['c', 'Угловые'], ['d', 'Диагональные']];
+
+  // Пары: два соседних числа каждой горизонтали, вертикали и диагонали, в том же порядке.
+  // Цвет пары — как у её линии; первая пара сплошной рамкой, вторая пунктиром.
+  const PAIRS = [];
+  PATS.filter((pt) => pt.type !== 'c').forEach((pt) => {
+    [[0, 1], [1, 2]].forEach(([i, j], n) => PAIRS.push({
+      id: pt.id + (n ? 'b' : 'a'), type: pt.type, label: pt.label, col: pt.col,
+      cells: [pt.cells[i], pt.cells[j]], color: pt.color, dash: n === 1, k: PAIRS.length
+    }));
+  });
+  const PAIR_GROUPS = [['h', 'Горизонтальные пары'], ['v', 'Вертикальные пары'], ['d', 'Диагональные пары']];
+
+  const SETS = {
+    tri: { key: 'tri', defs: PATS, groups: GROUPS, out: 'out3', btn: 'matchBtn', btnOn: 'Убрать совпадения', btnOff: 'Поиск совпадений',
+           title: 'Совпадений с окном', step: 1.4, on: false, res: null, ro: null, hidden: new Set() },
+    pair: { key: 'pair', defs: PAIRS, groups: PAIR_GROUPS, out: 'out4', btn: 'pairBtn', btnOn: 'Убрать пары', btnOff: 'Поиск пар',
+            title: 'Совпадений пар с окном', step: 1.0, on: false, res: null, ro: null, hidden: new Set() }
+  };
+
+  function computeSet(set) {
+    const r = current, p = lastInput.p;
+    const win = stage2(p.d, p.m, center, r.expr.v, r.fate.v, p.y).filter((x) => Math.abs(x.year - center) <= 1);
+    const W = [win.map((x) => x.base.v), win.map((x) => x.bg.v), win.map((x) => x.ex.v)];
+    const ms = stage8(r);
+    const M = [ms.map((x) => x.ch.v), ms.map((x) => x.fa.v), ms.map((x) => x.ex.v)];
+    return set.defs.map((def) => {
+      const vals = def.cells.map(([a, b]) => W[a][b]);
+      const r0 = Math.min(...def.cells.map((q) => q[0])), c0 = Math.min(...def.cells.map((q) => q[1]));
+      const rel = def.cells.map(([a, b]) => [a - r0, b - c0]);
+      const h = Math.max(...rel.map((q) => q[0])), w = Math.max(...rel.map((q) => q[1]));
+      const found = [];
+      for (let R = 0; R + h < 3; R++)
+        for (let C = 0; C + w < 12; C++)
+          if (rel.every(([a, b], i) => M[R + a][C + b] === vals[i])) found.push(rel.map(([a, b]) => [R + a, C + b]));
+      const name = def.type === 'v' ? String(win[def.col].year) : def.label;
+      return Object.assign({}, def, { vals, found, name });
+    });
+  }
+
+  // Контур одного совпадения: прямоугольник для линии, L-фигура для угла, капсула для диагонали.
+  // d — отступ внутрь, чтобы контуры разных комбинаций не сливались.
+  function shapeSvg(cells, X, Y, d, col, dash) {
+    const rs = cells.map((q) => q[0]), cs = cells.map((q) => q[1]);
+    const r0 = Math.min(...rs), r1 = Math.max(...rs), c0 = Math.min(...cs), c1 = Math.max(...cs);
+    const x0 = X[c0] + d, x1 = X[c1 + 1] - d, y0 = Y[r0] + d, y1 = Y[r1 + 1] - d;
+    const st = ' fill="none" stroke="' + col + '" stroke-width="2.5" stroke-linejoin="round"' + (dash ? ' stroke-dasharray="7 4"' : '');
+    const cw = X[c0 + 1] - X[c0], ch = Y[r0 + 1] - Y[r0];
+    const R = Math.max(6, Math.min(cw, ch) / 2 - d);  // радиус скругления — как у капсулы
+    if (r0 === r1 || c0 === c1) {
+      // Линия: капсула с полукруглыми концами
+      const rx = Math.min(x1 - x0, y1 - y0) / 2;
+      return '<rect x="' + x0.toFixed(1) + '" y="' + y0.toFixed(1) + '" width="' + (x1 - x0).toFixed(1) + '" height="' + (y1 - y0).toFixed(1) +
+        '" rx="' + rx.toFixed(1) + '"' + st + '/>';
+    }
+    if (cells.length === 3 && r1 - r0 === 1 && c1 - c0 === 1) {
+      // Угол: отступ вдвое меньше, чтобы «трубка» не становилась слишком тонкой
+      d = d * 0.5;
+      const x0 = X[c0] + d, x1 = X[c1 + 1] - d, y0 = Y[r0] + d, y1 = Y[r1 + 1] - d;
+      const R = Math.max(6, Math.min(cw, ch) / 2 - d);
+      const has = (a, b) => cells.some((q) => q[0] === a && q[1] === b);
+      let mr = 0, mc = 0;
+      for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) if (!has(r0 + a, c0 + b)) { mr = a; mc = b; }
+      const xm = X[c0 + 1] + (mc ? -d : d), ym = Y[r0 + 1] + (mr ? -d : d);
+      const box = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+      const mi = mr ? (mc ? 2 : 3) : (mc ? 1 : 0);
+      const [cx, cy] = box[mi];
+      const rep = (mi === 1 || mi === 3) ? [[xm, cy], [xm, ym], [cx, ym]] : [[cx, ym], [xm, ym], [xm, cy]];
+      const pts = [];
+      box.forEach((pt, i) => { if (i === mi) pts.push(...rep); else pts.push(pt); });
+      // Угол: изогнутая «трубка» — внешние углы скруглены как у капсулы, внутренний изгиб мягче
+      const notch = mi + 1;
+      return '<path d="' + roundedPath(pts, pts.map((_, i) => (i === notch ? Math.min(8, R) : R))) + '"' + st + '/>';
+    }
+    // Диагональ: капсула от центра первой клетки до центра последней
+    const ctr = ([a, b]) => [(X[b] + X[b + 1]) / 2, (Y[a] + Y[a + 1]) / 2];
+    const p1 = ctr(cells[0]), p3 = ctr(cells[cells.length - 1]);
+    const len = Math.hypot(p3[0] - p1[0], p3[1] - p1[1]) || 1;
+    const u = [(p3[0] - p1[0]) / len, (p3[1] - p1[1]) / len], n = [-u[1], u[0]];
+    const hw = Math.max(8, Math.min(cw, ch) / 2 - d * 0.5);
+    const P = (p, s) => (p[0] + n[0] * hw * s).toFixed(1) + ',' + (p[1] + n[1] * hw * s).toFixed(1);
+    const A = ' A' + hw.toFixed(1) + ' ' + hw.toFixed(1) + ' 0 0 0 ';
+    return '<path d="M' + P(p1, 1) + ' L' + P(p3, 1) + A + P(p3, -1) + ' L' + P(p1, -1) + A + P(p1, 1) + ' Z"' + st + '/>';
+  }
+
+  // Замкнутый контур по точкам со скруглёнными вершинами (радиус на каждую вершину, ограничен половиной рёбер)
+  function roundedPath(pts, radii) {
+    const N = pts.length, f = (v) => v.toFixed(1);
+    const seg = [];
+    for (let i = 0; i < N; i++) {
+      const v = pts[i], pv = pts[(i - 1 + N) % N], nx = pts[(i + 1) % N];
+      const l1 = Math.hypot(pv[0] - v[0], pv[1] - v[1]) || 1, l2 = Math.hypot(nx[0] - v[0], nx[1] - v[1]) || 1;
+      const r = Math.min(radii[i], l1 / 2, l2 / 2);
+      seg.push({ a: [v[0] + (pv[0] - v[0]) / l1 * r, v[1] + (pv[1] - v[1]) / l1 * r], v, b: [v[0] + (nx[0] - v[0]) / l2 * r, v[1] + (nx[1] - v[1]) / l2 * r], r });
+    }
+    // Четверть окружности через кубическую кривую (k ≈ 0.552)
+    const k = 0.5523;
+    let d = 'M' + f(seg[0].b[0]) + ',' + f(seg[0].b[1]);
+    for (let j = 1; j <= N; j++) {
+      const s = seg[j % N];
+      d += ' L' + f(s.a[0]) + ',' + f(s.a[1]);
+      const c1 = [s.a[0] + (s.v[0] - s.a[0]) * k, s.a[1] + (s.v[1] - s.a[1]) * k];
+      const c2 = [s.b[0] + (s.v[0] - s.b[0]) * k, s.b[1] + (s.v[1] - s.b[1]) * k];
+      d += ' C' + f(c1[0]) + ',' + f(c1[1]) + ' ' + f(c2[0]) + ',' + f(c2[1]) + ' ' + f(s.b[0]) + ',' + f(s.b[1]);
+    }
+    return d + ' Z';
+  }
+
+  function drawOverlay(stage, set) {
+    const svg = stage && stage.querySelector('.mt-overlay');
+    if (!svg) return;
+    if (!set || !set.on || !set.res) { svg.innerHTML = ''; return; }
+    const sr = stage.getBoundingClientRect();
+    const X = [], Y = [];
+    stage.querySelectorAll('td[data-r]').forEach((td) => {
+      const rc = td.getBoundingClientRect(), r = +td.dataset.r, c = +td.dataset.c;
+      X[c] = rc.left - sr.left; X[c + 1] = rc.right - sr.left;
+      Y[r] = rc.top - sr.top; Y[r + 1] = rc.bottom - sr.top;
+    });
+    const cs = getComputedStyle(stage);
+    let out = '';
+    set.res.forEach((pt) => {
+      if (set.hidden.has(pt.id) || !pt.found.length) return;
+      const col = cs.getPropertyValue('--' + pt.color).trim() || '#888';
+      const d = 2 + pt.k * set.step;
+      pt.found.forEach((cells) => { out += shapeSvg(cells, X, Y, d, col, pt.dash); });
+    });
+    svg.setAttribute('width', sr.width);
+    svg.setAttribute('height', sr.height);
+    svg.setAttribute('viewBox', '0 0 ' + sr.width + ' ' + sr.height);
+    svg.innerHTML = out;
+  }
+
+  function glyph(def) {
+    let s = '<svg class="glyph" width="17" height="17" viewBox="0 0 17 17" aria-hidden="true">';
+    for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) {
+      const on = def.cells.some((q) => q[0] === a && q[1] === b);
+      s += '<rect x="' + (b * 6) + '" y="' + (a * 6) + '" width="5" height="5" rx="1" style="fill:' + (on ? 'var(--' + def.color + ')' : 'var(--line)') + '"/>';
+    }
+    return s + '</svg>';
+  }
+
+  function panelHtml(set) {
+    const total = set.res.reduce((a, pt) => a + pt.found.length, 0);
+    return '<div class="mp-head"><span>' + set.title + ' ' + (center - 1) + '–' + (center + 1) + ': <b>' + total + '</b></span>' +
+        '<span class="btns"><button type="button" class="btn sm" data-all="1">Показать все</button>' +
+        '<button type="button" class="btn sm" data-all="0">Скрыть все</button></span></div>' +
+      set.groups.map(([t, title]) => '<div class="mp-group"><p class="legend-cap">' + title + '</p><div class="mp-chips">' +
+        set.res.filter((pt) => pt.type === t).map((pt) => {
+          const none = !pt.found.length;
+          return '<label class="mchip' + (none ? ' none' : '') + (pt.dash ? ' dash' : '') + '" style="--pc: var(--' + pt.color + ')">' +
+            '<input type="checkbox" data-pat="' + pt.id + '"' + (none ? ' disabled' : (set.hidden.has(pt.id) ? '' : ' checked')) + '>' +
+            glyph(pt) + '<span class="md">' + pt.vals.join(' ') + '</span><span class="ml">' + pt.name + '</span>' +
+            '<span class="mc">' + (none ? '0' : '×' + pt.found.length) + '</span></label>';
+        }).join('') + '</div></div>').join('');
+  }
+
+  function updateSet(set) {
+    const btn = $(set.btn);
+    btn.textContent = set.on ? set.btnOn : set.btnOff;
+    btn.classList.toggle('primary', !set.on);
+    if (set.ro) { set.ro.disconnect(); set.ro = null; }
+    if (set.key === 'pair') {
+      // У пар своя копия таблицы месяцев — показываем её только во время поиска
+      $('out4').innerHTML = !current
+        ? '<div class="empty">Таблица появится после ввода даты.</div>'
+        : set.on ? '<div style="display:grid;gap:12px">' + monthsTableHtml(current, 'pair') + '<div class="mp" hidden></div></div>'
+                 : '<div class="empty">Нажмите «Поиск пар», чтобы найти пары из окна событийности в таблице месяцев.</div>';
+    }
+    const stage = $(set.out).querySelector('.mt-stage');
+    const panel = $(set.out).querySelector('.mp');
+    if (!stage || !panel || !current || !lastInput) { set.res = null; return; }
+    if (!set.on) { set.res = null; panel.hidden = true; panel.innerHTML = ''; drawOverlay(stage, set); return; }
+    set.res = computeSet(set);
+    panel.hidden = false;
+    panel.innerHTML = panelHtml(set);
+    drawOverlay(stage, set);
+    if (window.ResizeObserver) { set.ro = new ResizeObserver(() => drawOverlay(stage, set)); set.ro.observe(stage); }
+  }
+  function updateMatches() { updateSet(SETS.tri); updateSet(SETS.pair); }
+
+  Object.values(SETS).forEach((set) => {
+    $(set.btn).addEventListener('click', () => {
+      if (!current) { toast('Сначала введите дату рождения'); return; }
+      set.on = !set.on;
+      updateSet(set);
+    });
+    $(set.out).addEventListener('change', (e) => {
+      const id = e.target.dataset && e.target.dataset.pat;
+      if (!id) return;
+      if (e.target.checked) set.hidden.delete(id); else set.hidden.add(id);
+      drawOverlay($(set.out).querySelector('.mt-stage'), set);
+    });
+    $(set.out).addEventListener('click', (e) => {
+      const b = e.target.closest('[data-all]');
+      if (!b) return;
+      if (b.dataset.all === '1') set.hidden.clear(); else set.defs.forEach((pt) => set.hidden.add(pt.id));
+      updateSet(set);
+    });
+  });
+  // Цвета контуров берутся из темы — перерисовываем при её смене
+  const redrawOnTheme = () => Object.values(SETS).forEach((set) => { if (set.on) drawOverlay($(set.out).querySelector('.mt-stage'), set); });
+  try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redrawOnTheme); } catch (e) {}
+  try { new MutationObserver(redrawOnTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] }); } catch (e) {}
+
+  // ---------- Этап 2: таблица по годам ----------
+  // Порядок getDay(): 0 = воскресенье … 6 = суббота
+  const WEEKDAYS = [
+    { name: 'Воскресенье', v: 1 },
+    { name: 'Понедельник', v: 2 },
+    { name: 'Вторник', v: 9 },
+    { name: 'Среда', v: 5 },
+    { name: 'Четверг', v: 3 },
+    { name: 'Пятница', v: 6 },
+    { name: 'Суббота', v: 8 }
+  ];
+  const LEGEND_ORDER = [1, 2, 3, 4, 5, 6, 0];
+  const MONTHS_IN = ['январе','феврале','марте','апреле','мае','июне','июле','августе','сентябре','октябре','ноябре','декабре'];
+  const NOW_YEAR = new Date().getFullYear();
+  let center = NOW_YEAR;
+  let lastInput = null;
+  let detailsOpen = false;
+
+  const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+
+  function stage2(d, m, centerYear, expr, fate, birthYear) {
+    // Этап 6: январь–июнь → вычитаем год рождения, июль–декабрь → год рождения + 1
+    const ageBase = m <= 6 ? birthYear : birthYear + 1;
+    const rows = [];
+    for (let y = centerYear - 2; y <= centerYear + 2; y++) {
+      let day = d, shifted = false;
+      if (m === 2 && d === 29 && !isLeap(y)) { day = 28; shifted = true; }
+      const wd = new Date(y, m - 1, day).getDay();
+      // Этап 3: основной год = (две последние цифры года → одна цифра) + экспрессивность + цифра дня недели → одна цифра
+      const yy2 = String(y).slice(-2);
+      const yr = sumChain(digits(yy2));
+      const base = sumChain([yr.v, expr, WEEKDAYS[wd].v]);
+      // Этап 4: фоновый год = (все цифры года → одна цифра) + число Судьбы → одна цифра
+      const yAll = sumChain(digits(y));
+      const bg = sumChain([yAll.v, fate]);
+      // Этап 5: экспрессивный год = (две последние цифры года → одна цифра) + экспрессивность → одна цифра
+      const ex = sumChain([yr.v, expr]);
+      // Этап 6: возраст (как есть) и судьбоносный год (возраст → одна цифра)
+      const age = y - ageBase;
+      const fy = age >= 10 ? sumChain(digits(age)) : age >= 1 ? { v: age, steps: [] } : null;
+      const fyMatch = !!fy && fy.v === fate; // совпадает с числом Судьбы — выделяем
+      rows.push({ year: y, expr, wdIndex: wd, wd: WEEKDAYS[wd], shifted, yy2, yr, base, yAll, bg, ex, ageBase, age, fy, fyMatch });
+    }
+    return rows;
+  }
+
+  function renderStage2(p, r) {
+    lastInput = { p, r };
+    const rows = stage2(p.d, p.m, center, r.expr.v, r.fate.v, p.y);
+    // Судьбоносные года: от года рождения до конца XXI века
+    const FY_FROM = p.y, FY_TO = 2100;
+    const fateYears = [];
+    const ageBase = p.m <= 6 ? p.y : p.y + 1;
+    for (let y = FY_FROM; y <= FY_TO; y++) {
+      const age = y - ageBase;
+      if (age >= 1 && (age >= 10 ? sumChain(digits(age)).v : age) === r.fate.v) fateYears.push(y);
+    }
+    const anyShift = rows.some((x) => x.shifted);
+    const used = new Set(rows.map((x) => x.wdIndex));
+    const cls = (x) => (x.year === center ? ' class="cur"' : '');
+    // Этап 7: окно событийности — прошлый, текущий, следующий год × строки основной/фоновый/экспрессивный
+    const inWin = (x) => Math.abs(x.year - center) <= 1;
+    const wcls = (x, pos) => {
+      const c = [];
+      if (x.year === center) c.push('cur');
+      if (inWin(x)) {
+        c.push('win');
+        if (x.year === center - 1) c.push('wl');
+        if (x.year === center + 1) c.push('wr');
+        if (pos === 'top') c.push('wt');
+        if (pos === 'bottom') c.push('wb');
+      }
+      return c.length ? ' class="' + c.join(' ') + '"' : '';
     };
-    try {
-      navigator.clipboard.writeText(text).then(() => toast('Скопировано'), fallback);
-    } catch (e) { fallback(); }
-  });
 
-  // Init
-  buildAlpha();
-  let saved = null;
-  try { saved = JSON.parse(localStorage.getItem('pyth-num') || 'null'); } catch (e) {}
-  if (saved && saved.dob && (saved.name !== SAMPLE.name || saved.dob !== SAMPLE.dob)) {
-    $('name').value = saved.name || ''; $('dob').value = saved.dob; $('sampleTag').hidden = true;
-  } else {
-    $('name').value = SAMPLE.name; $('dob').value = SAMPLE.dob;
+    $('out2').innerHTML =
+      '<div style="display:grid;gap:12px">' +
+        '<div class="yt-wrap"><table class="yt">' +
+          '<thead><tr><th scope="col">Годы</th>' + rows.map((x) =>
+            '<th scope="col"' + cls(x) + '>' + x.year + (x.year === NOW_YEAR ? '<span class="cur-mark">сейчас</span>' : '') + '</th>').join('') + '</tr></thead>' +
+          '<tbody>' +
+            '<tr><th scope="row">Число экспрессивности</th>' + rows.map((x) =>
+              '<td' + cls(x) + '><span class="big">' + x.expr + '</span></td>').join('') + '</tr>' +
+            '<tr><th scope="row">День недели</th>' + rows.map((x) =>
+              '<td' + cls(x) + '><div class="wd"><span class="big">' + x.wd.v + '</span><span>' + x.wd.name.toLowerCase() +
+              (x.shifted ? '<span class="fn">*</span>' : '') + '</span></div></td>').join('') + '</tr>' +
+            '<tr class="base first"><th scope="row">Основной год</th>' + rows.map((x) =>
+              '<td' + wcls(x, 'top') + '><span class="big">' + x.base.v + '</span></td>').join('') + '</tr>' +
+            '<tr class="base"><th scope="row">Фоновый год</th>' + rows.map((x) =>
+              '<td' + wcls(x, 'mid') + '><span class="big">' + x.bg.v + '</span></td>').join('') + '</tr>' +
+            '<tr class="base"><th scope="row">Экспрессивный год</th>' + rows.map((x) =>
+              '<td' + wcls(x, 'bottom') + '><span class="big">' + x.ex.v + '</span></td>').join('') + '</tr>' +
+            '<tr class="age"><th scope="row">Возраст</th>' + rows.map((x) =>
+              '<td' + cls(x) + '><span class="agev">' + (x.age >= 0 ? x.age : '—') + '</span></td>').join('') + '</tr>' +
+            '<tr class="base"><th scope="row">Судьбоносный год</th>' + rows.map((x) =>
+              '<td class="' + (x.year === center ? 'cur ' : '') + (x.fyMatch ? 'match' : '') + '"' +
+              (x.fyMatch ? ' title="Совпадает с числом Судьбы"' : '') + '><span class="big">' + (x.fy ? x.fy.v : '—') + '</span>' +
+              '</td>').join('') + '</tr>' +
+          '</tbody></table></div>' +
+        '<div class="keys"><span class="key"><span class="swatch frame"></span>Окно событийности</span>' +
+          '<span class="key"><span class="swatch"></span>Судьбоносные года' +
+          (fateYears.length ? ': <b class="fyears">' + fateYears.join(', ') + '</b>' : ': нет') +
+          '</span></div>' +
+        '<details class="more" id="calcDetails"' + (detailsOpen ? ' open' : '') + '><summary>Расшифровка подсчетов</summary><div class="more-body">' +
+        calcBlock('Как посчитан основной год', rows, (x) => x.yy2, (x) => x.yr, (x) => x.base,
+          'Две последние цифры года → одна цифра, + экспрессивность ' + r.expr.v + ' + цифра дня недели.') +
+        calcBlock('Как посчитан фоновый год', rows, (x) => x.year, (x) => x.yAll, (x) => x.bg,
+          'Все цифры года → одна цифра, + число Судьбы ' + r.fate.v + '.') +
+        calcBlock('Как посчитан экспрессивный год', rows, (x) => x.yy2, (x) => x.yr, (x) => x.ex,
+          'Две последние цифры года → одна цифра, + экспрессивность ' + r.expr.v + '.') +
+        '<div class="basecalc"><p class="legend-cap">Как посчитаны возраст и судьбоносный год</p>' + rows.map((x) =>
+          '<div class="bc-row' + (x.year === center ? ' cur' : '') + (x.fyMatch ? ' match' : '') + '"><span class="bc-y">' + x.year + '</span>' +
+          '<div class="calc"><span class="eq">' + x.year + '−' + x.ageBase + ' =</span> ' + x.age +
+          (x.fy ? (x.fy.steps.length ? ' <span class="eq">·</span> ' + show('', x.fy) : ' <span class="eq">·</span> <b>' + x.fy.v + '</b>')
+                : ' <span class="eq">· ' + (x.age < 0 ? 'год до рождения, не считаем' : 'возраст 0, не сводим') + '</span>') +
+          '</div></div>').join('') +
+          '<p class="note">Рождение в ' + MONTHS_IN[p.m - 1] + ', поэтому из года вычитаем ' +
+          (p.m <= 6 ? 'год рождения ' + p.y + ' (январь–июнь).' : 'год рождения + 1 = ' + (p.y + 1) + ' (июль–декабрь).') +
+          ' Возраст записываем как есть, судьбоносный год — возраст, сведённый к одной цифре.</p></div>' +
+        '<div class="basecalc"><p class="legend-cap">Дни недели</p>' +
+        '<div class="legend">' + LEGEND_ORDER.map((i) =>
+          '<span' + (used.has(i) ? ' class="used"' : '') + '>' + WEEKDAYS[i].name + '<b>' + WEEKDAYS[i].v + '</b></span>').join('') + '</div>' +
+        '<p class="note">День недели, на который выпадает ' + p.d + ' ' + MONTHS[p.m - 1] + ' в каждом году. Цифра взята из таблицы дней недели.</p></div>' +
+        '</div></details>' +
+        (anyShift ? '<p class="note"><span class="fn">*</span> В невисокосный год день рождения 29 февраля считается по 28 февраля.</p>' : '') +
+      '</div>';
+    $('calcDetails').addEventListener('toggle', (e) => { detailsOpen = e.target.open; });
+
+    $('yNow').disabled = center === NOW_YEAR;
   }
-  compute();
+
+  function calcBlock(title, rows, label, first, total, note) {
+    return '<div class="basecalc"><p class="legend-cap">' + title + '</p>' + rows.map((x) =>
+      '<div class="bc-row' + (x.year === center ? ' cur' : '') + '"><span class="bc-y">' + x.year + '</span>' +
+      '<div class="calc"><span class="eq">' + label(x) + ':</span> ' + show('', first(x)).replace(/<b>(\d+)<\/b>/, '$1') +
+      ' <span class="eq">·</span> ' + show('', total(x)) + '</div></div>').join('') +
+      '<p class="note">' + note + '</p></div>';
+  }
+
+  function shiftYear(delta) {
+    center = delta === 0 ? NOW_YEAR : center + delta;
+    if (lastInput) renderStage2(lastInput.p, lastInput.r);
+    $('yNow').disabled = center === NOW_YEAR;
+    updateMatches(); // окно событийности сдвинулось — пересчитываем совпадения
+  }
+  $('yPrev').addEventListener('click', () => shiftYear(-1));
+  $('yNext').addEventListener('click', () => shiftYear(1));
+  $('yNow').addEventListener('click', () => shiftYear(0));
+  function num(v, t, s) {
+    return '<div class="num"><span class="n">' + v + '</span><span class="t">' + t + '</span><span class="s">' + s + '</span></div>';
+  }
+
+  // Маска ввода: ставит точки автоматически
+  $('dob').addEventListener('input', (e) => {
+    const el = e.target;
+    const digits = el.value.replace(/\D/g, '').slice(0, 8);
+    let v = digits;
+    if (digits.length > 4) v = digits.slice(0, 2) + '.' + digits.slice(2, 4) + '.' + digits.slice(4);
+    else if (digits.length > 2) v = digits.slice(0, 2) + '.' + digits.slice(2);
+    if (e.inputType && e.inputType.startsWith('delete')) v = el.value; // не мешаем стирать
+    el.value = v;
+    $('sampleTag').hidden = true;
+    render();
+    try { localStorage.setItem('pyth-stage1', el.value); } catch (err) {}
+  });
+  $('form').addEventListener('submit', (e) => e.preventDefault());
+  $('sampleBtn').addEventListener('click', () => { $('dob').value = SAMPLE; $('sampleTag').hidden = false; render(); });
+
+  function toast(msg, ms) { $('toast').textContent = msg; clearTimeout(toast.t); if (ms !== 0) toast.t = setTimeout(() => { $('toast').textContent = ''; }, ms || 2600); }
+
+  // ---------- Экспорт PDF ----------
+  // Собираем отдельный светлый лист вне экрана, снимаем его html2canvas и кладём в A4 через jsPDF.
+  // Снимок одного листа (HTML) в canvas; контуры совпадений перерисовываются под размеры листа
+  async function sheetCanvas(html) {
+    const sheet = document.createElement('div');
+    sheet.className = 'pdf-sheet';
+    sheet.innerHTML = html;
+    document.body.appendChild(sheet);
+    try {
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      sheet.querySelectorAll('.mt-stage').forEach((st) => drawOverlay(st, SETS[st.dataset.set]));
+      return await window.html2canvas(sheet, { scale: 2, backgroundColor: '#FFFFFF', logging: false });
+    } finally {
+      sheet.remove();
+    }
+  }
+
+  async function makePdf() {
+    const r = current, p = lastInput && lastInput.p;
+    if (!r || !p) return null;
+    const today = new Date();
+    const pick = (root, sel) => { const el = $(root).querySelector(sel); return el ? el.outerHTML : ''; };
+    const head = '<header class="pdf-head"><h1>Numerology</h1>' +
+      '<p><b>' + p.d + ' ' + MONTHS[p.m - 1] + ' ' + p.y + ' года</b> · ' + r.dd + '.' + r.mm + '.' + r.yy + '</p>' +
+      '<p class="pdf-gen">Сформировано ' + String(today.getDate()).padStart(2, '0') + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + today.getFullYear() + '</p></header>';
+    const pages = [
+      head +
+      '<section><h2>Этап 1</h2>' + pick('out', '.record') + pick('out', '.memo') + '</section>' +
+      '<section><h2>Таблица по годам</h2>' + pick('out2', '.yt-wrap') + pick('out2', '.keys') + '</section>' +
+      '<section><h2>Месяцы</h2>' + pick('out3', '.yt-wrap') + pdfLegend(SETS.tri) + '</section>'
+    ];
+    // Пары — на отдельной странице
+    if (SETS.pair.on && SETS.pair.res) {
+      pages.push(head + '<section><h2>Совпадения пар</h2>' + pick('out4', '.yt-wrap') + pdfLegend(SETS.pair) + '</section>');
+    }
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const margin = 10, pw = 210 - margin * 2, ph = 297 - margin * 2;
+    for (let i = 0; i < pages.length; i++) {
+      const canvas = await sheetCanvas(pages[i]);
+      if (i) pdf.addPage();
+      let w = pw, h = pw * canvas.height / canvas.width;
+      if (h > ph) { h = ph; w = ph * canvas.width / canvas.height; }
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin + (pw - w) / 2, margin, w, h);
+    }
+    return { blob: pdf.output('blob'), filename: 'Numerology ' + r.dd + '.' + r.mm + '.' + r.yy + '.pdf' };
+  }
+
+  function pdfLegend(set) {
+    if (!set.on || !set.res) return '';
+    const vis = set.res.filter((pt) => pt.found.length && !set.hidden.has(pt.id));
+    if (!vis.length) return '';
+    const gname = { h: 'горизонталь', v: 'вертикаль', c: 'угол', d: 'диагональ' };
+    return '<p class="pdf-mcap">' + (set.key === 'pair' ? 'Пары' : 'Совпадения') + ' из окна событийности ' + (center - 1) + '–' + (center + 1) + '</p>' +
+      '<div class="pdf-ml">' + vis.map((pt) =>
+        '<span class="pdf-mi"><i style="border-color: var(--' + pt.color + ');' + (pt.dash ? ' border-style: dashed;' : '') + '"></i><b>' + pt.vals.join(' ') + '</b> ' +
+        gname[pt.type] + ' · ' + pt.name + ' · ×' + pt.found.length + '</span>').join('') + '</div>';
+  }
+
+  let downloadsNs;
+  const getDownloads = () => (downloadsNs !== undefined ? Promise.resolve(downloadsNs)
+    : Promise.resolve(window.claude && window.claude.use ? window.claude.use('downloads') : null)
+        .catch(() => null).then((d) => (downloadsNs = d)));
+
+  $('pdfBtn').addEventListener('click', async () => {
+    const btn = $('pdfBtn');
+    if (!current) { toast('Сначала введите дату рождения'); return; }
+    if (!window.html2canvas || !window.jspdf) { toast('Не загрузились модули для PDF. Обновите страницу.'); return; }
+    const dl = await getDownloads();
+    if (!dl) { btn.hidden = true; toast('Экспорт недоступен в этом окне'); return; }
+    btn.disabled = true; toast('Готовлю PDF…', 0);
+    try {
+      const file = await makePdf();
+      if (!file) { toast('Сначала введите дату рождения'); return; }
+      await dl.save({ filename: file.filename, data: file.blob });
+      toast('PDF сохранён');
+    } catch (e) {
+      const code = e && e.code;
+      if (code === 'declined') toast('Сохранение отменено');
+      else if (code === 'rate_limited') toast('Окно сохранения уже открыто');
+      else if (code === 'unavailable' || code === 'not_granted' || code === 'capability_disabled' || code === 'capability_removed') { btn.hidden = true; toast('Экспорт недоступен в этом окне'); }
+      else toast('Не удалось собрать PDF. Попробуйте ещё раз.');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  // Если сохранение файлов в этом окне недоступно, прячем кнопку
+  getDownloads().then((d) => { if (!d) $('pdfBtn').hidden = true; });
+
+  let saved = null;
+  try { saved = localStorage.getItem('pyth-stage1'); } catch (e) {}
+  if (saved && saved !== SAMPLE && parse(saved).d) { $('dob').value = saved; $('sampleTag').hidden = true; }
+  else { $('dob').value = SAMPLE; }
+  render();
+
 })();
 </script>
 

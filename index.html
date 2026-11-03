@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Numerology 2</title>
+<title>Numerology 3</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -90,7 +90,9 @@ body {
   background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
 }
 #dob[aria-invalid="true"] { border-color: var(--danger); }
-.readable { font-size: 13px; color: var(--muted); margin: 0; min-height: 1.4em; }
+.readable { font-size: 13px; color: var(--muted); margin: 0; }
+.readable:empty { display: none; }
+.calc-title { margin: 8px 0 -8px; font-family: var(--f-display); font-weight: 400; font-size: clamp(28px, 4.2vw, 38px); line-height: 1.1; text-wrap: balance; }
 .readable.err { color: var(--danger); }
 .actions { display: flex; gap: 8px; align-items: stretch; position: relative; }
 .actions .btn { padding-inline: 18px; }
@@ -151,7 +153,8 @@ section { display: grid; gap: 14px; min-width: 0; }
 /* Stage 2: years table */
 .yearnav { display: flex; align-items: center; gap: 6px; }
 .yearnav .btn { padding: 5px 11px; font-family: var(--f-mono); }
-.yearnav .btn[disabled] { opacity: .4; cursor: default; }
+.yearnav .btn[disabled], .sec-head .btn[disabled] { opacity: .4; cursor: default; }
+.sec-head .btn[disabled]:hover { border-color: var(--line); }
 .yt-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
 table.yt { border-collapse: collapse; width: 100%; min-width: 620px; table-layout: fixed; font-variant-numeric: tabular-nums; }
 .yt th, .yt td { border-bottom: 1px solid var(--line); border-left: 1px solid var(--line); padding: 10px 8px; text-align: center; vertical-align: middle; }
@@ -306,11 +309,12 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
       <p class="readable" id="readable" role="status"></p>
     </div>
     <div class="actions">
-      <button type="button" class="btn" id="sampleBtn">Пример</button>
       <button type="button" class="btn primary" id="pdfBtn">Экспорт PDF</button>
       <span class="toast" id="toast" role="status"></span>
     </div>
   </form>
+
+  <h2 class="calc-title" id="calcTitle" hidden></h2>
 
   <section id="stage1">
     <div class="sec-head"><h2>Этап 1</h2><p>Характер, Судьба и Экспрессивность</p></div>
@@ -399,6 +403,7 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
     const out = $('out');
     if (p.err) {
       current = null;
+      $('calcTitle').hidden = true;
       const partial = $('dob').value.trim().length < 10;
       $('dob').setAttribute('aria-invalid', String(!partial));
       $('readable').className = 'readable' + (partial ? '' : ' err');
@@ -406,12 +411,17 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
       out.innerHTML = '<div class="empty">Введите полную дату рождения, и здесь появится расчёт по шагам.</div>';
       $('out2').innerHTML = '<div class="empty">Таблица по годам появится после ввода даты.</div>';
       $('out3').innerHTML = '<div class="empty">Таблица по месяцам появится после ввода даты.</div>';
+      ['yPrev', 'yNow', 'yNext', 'matchBtn', 'pairBtn'].forEach((id) => { $(id).disabled = true; });
+      // Дату стёрли или она неверная — сбрасываем поиск совпадений и пар вместе с выбранными галочками
+      Object.values(SETS).forEach((set) => { set.on = false; set.hidden.clear(); }); // без даты листать годы и искать совпадения нечего
       updateMatches();
       return;
     }
     $('dob').setAttribute('aria-invalid', 'false');
     $('readable').className = 'readable';
-    $('readable').textContent = p.d + ' ' + MONTHS[p.m - 1] + ' ' + p.y + ' года';
+    $('readable').textContent = '';
+    $('calcTitle').textContent = 'Расчёт для ' + p.d + ' ' + MONTHS[p.m - 1] + ' ' + p.y + ' года';
+    $('calcTitle').hidden = false;
 
     const r = stage1(p.d, p.m, p.y);
     current = r;
@@ -427,22 +437,12 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
     out.innerHTML =
       '<div style="display:grid;gap:14px">' +
         '<div class="record">' +
-          num(r.day.v, 'Характер', 'действие 1') +
-          num(r.fate.v, 'Судьба', 'действие 4') +
-          num(r.expr.v, 'Экспрессивность', 'действие 5') +
+          num(r.day.v, 'Характер', '') +
+          num(r.fate.v, 'Судьба', '') +
+          num(r.expr.v, 'Экспрессивность', '') +
         '</div>' +
         '<div class="memo">Запомнили для расчётов: <span class="pill">месяц ' + r.mon.v + '</span><span class="pill">год ' + r.year.v + '</span></div>' +
-        '<details class="more" id="calcDetails1"' + (detailsOpen1 ? ' open' : '') + '><summary>Расшифровка подсчетов</summary><div class="more-body">' +
-        '<ol class="ledger">' + acts.map((a, i) =>
-          '<li class="act' + (a.rec ? ' rec' : '') + '">' +
-            '<span class="no">' + (i + 1) + '</span>' +
-            '<div class="body"><h3>' + a.title + '</h3><div class="calc">' + a.calc + '</div><p class="why">' + a.why + '</p></div>' +
-            '<div class="res"><span class="v">' + a.v + '</span><span class="tag ' + (a.rec ? 'write' : 'keep') + '">' + (a.rec ? a.tag : 'запомнить') + '</span></div>' +
-          '</li>').join('') +
-        '</ol>' +
-        '</div></details>' +
       '</div>';
-    $('calcDetails1').addEventListener('toggle', (e) => { detailsOpen1 = e.target.open; });
 
     renderStage2(p, r);
     renderStage8(r);
@@ -491,18 +491,7 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
       '<div style="display:grid;gap:12px">' +
         monthsTableHtml(r, 'tri') +
         '<div class="mp" hidden></div>' +
-        '<details class="more" id="calcDetails3"' + (detailsOpen3 ? ' open' : '') + '><summary>Расшифровка подсчетов</summary><div class="more-body">' +
-          '<div class="basecalc">' + ms.map((x) =>
-            '<div class="bc-row mrow' + (x.i === curM ? ' cur' : '') + '"><span class="bc-y">' + x.mm + '</span>' +
-            '<div class="calc"><span class="eq">месяц:</span> ' + short(x.mv).replace(/<\/?b>/g, '') +
-            ' <span class="eq">· Характер:</span> ' + short(x.ch) +
-            ' <span class="eq">· Судьба:</span> ' + short(x.fa) +
-            ' <span class="eq">· Экспрессия:</span> ' + short(x.ex) + '</div></div>').join('') +
-          '<p class="note">Номер месяца сводим к одной цифре (12 → 1+2 = 3), затем прибавляем Характер ' + r.day.v +
-            ', Судьбу ' + r.fate.v + ' или Экспрессию ' + r.expr.v + ' и снова сводим к одной цифре.</p></div>' +
-        '</div></details>' +
       '</div>';
-    $('calcDetails3').addEventListener('toggle', (e) => { detailsOpen3 = e.target.open; });
     updateMatches();
   }
 
@@ -832,32 +821,14 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
           '<span class="key"><span class="swatch"></span>Судьбоносные года' +
           (fateYears.length ? ': <b class="fyears">' + fateYears.join(', ') + '</b>' : ': нет') +
           '</span></div>' +
-        '<details class="more" id="calcDetails"' + (detailsOpen ? ' open' : '') + '><summary>Расшифровка подсчетов</summary><div class="more-body">' +
-        calcBlock('Как посчитан основной год', rows, (x) => x.yy2, (x) => x.yr, (x) => x.base,
-          'Две последние цифры года → одна цифра, + экспрессивность ' + r.expr.v + ' + цифра дня недели.') +
-        calcBlock('Как посчитан фоновый год', rows, (x) => x.year, (x) => x.yAll, (x) => x.bg,
-          'Все цифры года → одна цифра, + число Судьбы ' + r.fate.v + '.') +
-        calcBlock('Как посчитан экспрессивный год', rows, (x) => x.yy2, (x) => x.yr, (x) => x.ex,
-          'Две последние цифры года → одна цифра, + экспрессивность ' + r.expr.v + '.') +
-        '<div class="basecalc"><p class="legend-cap">Как посчитаны возраст и судьбоносный год</p>' + rows.map((x) =>
-          '<div class="bc-row' + (x.year === center ? ' cur' : '') + (x.fyMatch ? ' match' : '') + '"><span class="bc-y">' + x.year + '</span>' +
-          '<div class="calc"><span class="eq">' + x.year + '−' + x.ageBase + ' =</span> ' + x.age +
-          (x.fy ? (x.fy.steps.length ? ' <span class="eq">·</span> ' + show('', x.fy) : ' <span class="eq">·</span> <b>' + x.fy.v + '</b>')
-                : ' <span class="eq">· ' + (x.age < 0 ? 'год до рождения, не считаем' : 'возраст 0, не сводим') + '</span>') +
-          '</div></div>').join('') +
-          '<p class="note">Рождение в ' + MONTHS_IN[p.m - 1] + ', поэтому из года вычитаем ' +
-          (p.m <= 6 ? 'год рождения ' + p.y + ' (январь–июнь).' : 'год рождения + 1 = ' + (p.y + 1) + ' (июль–декабрь).') +
-          ' Возраст записываем как есть, судьбоносный год — возраст, сведённый к одной цифре.</p></div>' +
-        '<div class="basecalc"><p class="legend-cap">Дни недели</p>' +
-        '<div class="legend">' + LEGEND_ORDER.map((i) =>
-          '<span' + (used.has(i) ? ' class="used"' : '') + '>' + WEEKDAYS[i].name + '<b>' + WEEKDAYS[i].v + '</b></span>').join('') + '</div>' +
-        '<p class="note">День недели, на который выпадает ' + p.d + ' ' + MONTHS[p.m - 1] + ' в каждом году. Цифра взята из таблицы дней недели.</p></div>' +
-        '</div></details>' +
         (anyShift ? '<p class="note"><span class="fn">*</span> В невисокосный год день рождения 29 февраля считается по 28 февраля.</p>' : '') +
       '</div>';
-    $('calcDetails').addEventListener('toggle', (e) => { detailsOpen = e.target.open; });
 
     $('yNow').disabled = center === NOW_YEAR;
+    $('yPrev').disabled = false;
+    $('yNext').disabled = false;
+    $('matchBtn').disabled = false;
+    $('pairBtn').disabled = false;
   }
 
   function calcBlock(title, rows, label, first, total, note) {
@@ -895,21 +866,20 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
     try { localStorage.setItem('pyth-stage1', el.value); } catch (err) {}
   });
   $('form').addEventListener('submit', (e) => e.preventDefault());
-  $('sampleBtn').addEventListener('click', () => { $('dob').value = SAMPLE; $('sampleTag').hidden = false; render(); });
 
   function toast(msg, ms) { $('toast').textContent = msg; clearTimeout(toast.t); if (ms !== 0) toast.t = setTimeout(() => { $('toast').textContent = ''; }, ms || 2600); }
 
   // ---------- Экспорт PDF ----------
   // Собираем отдельный светлый лист вне экрана, снимаем его html2canvas и кладём в A4 через jsPDF.
   // Снимок одного листа (HTML) в canvas; контуры совпадений перерисовываются под размеры листа
-  async function sheetCanvas(html) {
+  async function sheetCanvas(html, sets) {
     const sheet = document.createElement('div');
     sheet.className = 'pdf-sheet';
     sheet.innerHTML = html;
     document.body.appendChild(sheet);
     try {
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
-      sheet.querySelectorAll('.mt-stage').forEach((st) => drawOverlay(st, SETS[st.dataset.set]));
+      sheet.querySelectorAll('.mt-stage').forEach((st) => drawOverlay(st, (sets || SETS)[st.dataset.set]));
       return await window.html2canvas(sheet, { scale: 2, backgroundColor: '#FFFFFF', logging: false });
     } finally {
       sheet.remove();
@@ -921,6 +891,9 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
     if (!r || !p) return null;
     const today = new Date();
     const pick = (root, sel) => { const el = $(root).querySelector(sel); return el ? el.outerHTML : ''; };
+    // Совпадения и пары попадают в PDF всегда: если поиск включён — как на экране (с учётом галочек), иначе все найденные
+    const pdfSet = (set) => (set.on && set.res ? set : Object.assign({}, set, { on: true, res: computeSet(set), hidden: new Set() }));
+    const pdfSets = { tri: pdfSet(SETS.tri), pair: pdfSet(SETS.pair) };
     const head = '<header class="pdf-head"><h1>Numerology</h1>' +
       '<p><b>' + p.d + ' ' + MONTHS[p.m - 1] + ' ' + p.y + ' года</b> · ' + r.dd + '.' + r.mm + '.' + r.yy + '</p>' +
       '<p class="pdf-gen">Сформировано ' + String(today.getDate()).padStart(2, '0') + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + today.getFullYear() + '</p></header>';
@@ -928,17 +901,15 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
       head +
       '<section><h2>Этап 1</h2>' + pick('out', '.record') + pick('out', '.memo') + '</section>' +
       '<section><h2>Таблица по годам</h2>' + pick('out2', '.yt-wrap') + pick('out2', '.keys') + '</section>' +
-      '<section><h2>Месяцы</h2>' + pick('out3', '.yt-wrap') + pdfLegend(SETS.tri) + '</section>'
+      '<section><h2>Месяцы · совпадения</h2>' + monthsTableHtml(r, 'tri') + pdfLegend(pdfSets.tri) + '</section>'
     ];
-    // Пары — на отдельной странице
-    if (SETS.pair.on && SETS.pair.res) {
-      pages.push(head + '<section><h2>Совпадения пар</h2>' + pick('out4', '.yt-wrap') + pdfLegend(SETS.pair) + '</section>');
-    }
+    // Пары — всегда, на отдельной странице
+    pages.push(head + '<section><h2>Совпадения пар</h2>' + monthsTableHtml(r, 'pair') + pdfLegend(pdfSets.pair) + '</section>');
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const margin = 10, pw = 210 - margin * 2, ph = 297 - margin * 2;
     for (let i = 0; i < pages.length; i++) {
-      const canvas = await sheetCanvas(pages[i]);
+      const canvas = await sheetCanvas(pages[i], pdfSets);
       if (i) pdf.addPage();
       let w = pw, h = pw * canvas.height / canvas.width;
       if (h > ph) { h = ph; w = ph * canvas.width / canvas.height; }
@@ -950,7 +921,7 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
   function pdfLegend(set) {
     if (!set.on || !set.res) return '';
     const vis = set.res.filter((pt) => pt.found.length && !set.hidden.has(pt.id));
-    if (!vis.length) return '';
+    if (!vis.length) return '<p class="pdf-mcap">' + (set.key === 'pair' ? 'Пары' : 'Совпадения') + ' из окна событийности ' + (center - 1) + '–' + (center + 1) + ': не найдены</p>';
     const gname = { h: 'горизонталь', v: 'вертикаль', c: 'угол', d: 'диагональ' };
     return '<p class="pdf-mcap">' + (set.key === 'pair' ? 'Пары' : 'Совпадения') + ' из окна событийности ' + (center - 1) + '–' + (center + 1) + '</p>' +
       '<div class="pdf-ml">' + vis.map((pt) =>
@@ -958,22 +929,35 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
         gname[pt.type] + ' · ' + pt.name + ' · ×' + pt.found.length + '</span>').join('') + '</div>';
   }
 
+  // Внутри claude.ai файл отдаём через сохранение просмотрщика (обычные загрузки там запрещены).
+  // Вне claude.ai (скачанный HTML, открытый в браузере) — обычной загрузкой.
+  const inViewer = () => !!(window.claude && window.claude.use);
   let downloadsNs;
-  const getDownloads = () => (downloadsNs !== undefined ? Promise.resolve(downloadsNs)
-    : Promise.resolve(window.claude && window.claude.use ? window.claude.use('downloads') : null)
-        .catch(() => null).then((d) => (downloadsNs = d)));
+  const getDownloads = () => {
+    if (!inViewer()) return Promise.resolve(null);
+    if (downloadsNs !== undefined) return Promise.resolve(downloadsNs);
+    return Promise.resolve(window.claude.use('downloads')).catch(() => null).then((d) => (downloadsNs = d));
+  };
+  function saveDirect(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.style.display = 'none';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }
 
   $('pdfBtn').addEventListener('click', async () => {
     const btn = $('pdfBtn');
     if (!current) { toast('Сначала введите дату рождения'); return; }
-    if (!window.html2canvas || !window.jspdf) { toast('Не загрузились модули для PDF. Обновите страницу.'); return; }
+    if (!window.html2canvas || !window.jspdf) { toast('Не загрузились модули для PDF. Проверьте интернет и обновите страницу.'); return; }
     const dl = await getDownloads();
-    if (!dl) { btn.hidden = true; toast('Экспорт недоступен в этом окне'); return; }
+    if (!dl && inViewer()) { btn.hidden = true; toast('Экспорт недоступен в этом окне'); return; }
     btn.disabled = true; toast('Готовлю PDF…', 0);
     try {
       const file = await makePdf();
       if (!file) { toast('Сначала введите дату рождения'); return; }
-      await dl.save({ filename: file.filename, data: file.blob });
+      if (dl) await dl.save({ filename: file.filename, data: file.blob });
+      else saveDirect(file.blob, file.filename);
       toast('PDF сохранён');
     } catch (e) {
       const code = e && e.code;
@@ -985,8 +969,8 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
       btn.disabled = false;
     }
   });
-  // Если сохранение файлов в этом окне недоступно, прячем кнопку
-  getDownloads().then((d) => { if (!d) $('pdfBtn').hidden = true; });
+  // В claude.ai без разрешения на сохранение кнопку прячем; вне claude.ai она работает через обычную загрузку
+  getDownloads().then((d) => { if (!d && inViewer()) $('pdfBtn').hidden = true; });
 
   // Тема: «Авто» — как в системе (или как выбрано в Claude), либо явно светлая/тёмная
   const hostTheme = document.documentElement.getAttribute('data-theme');
@@ -1014,5 +998,7 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
 
 })();
 </script>
+
+
 
 </body></html>

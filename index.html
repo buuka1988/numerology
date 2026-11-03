@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Numerology 3</title>
+<title>Numerology 4</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -153,7 +153,10 @@ section { display: grid; gap: 14px; min-width: 0; }
 /* Stage 2: years table */
 .yearnav { display: flex; align-items: center; gap: 6px; }
 .yearnav .btn { padding: 5px 11px; font-family: var(--f-mono); }
-.yearnav .btn[disabled], .sec-head .btn[disabled] { opacity: .4; cursor: default; }
+.yearnav .btn[disabled], .sec-head .btn[disabled], .actions .btn[disabled], .bottom-actions .btn[disabled] { opacity: .4; cursor: default; }
+.bottom-actions { display: flex; justify-content: flex-end; align-items: center; gap: 14px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 18px; }
+.bottom-actions .btn { padding: 12px 22px; }
+.actions .btn[disabled]:hover { border-color: var(--accent); }
 .sec-head .btn[disabled]:hover { border-color: var(--line); }
 .yt-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
 table.yt { border-collapse: collapse; width: 100%; min-width: 620px; table-layout: fixed; font-variant-numeric: tabular-nums; }
@@ -206,6 +209,10 @@ table.yt.mt { min-width: 760px; }
 
 /* Этап 9: совпадения */
 .mt-stage { position: relative; min-width: 760px; }
+.mt-stage.ys { min-width: 620px; }
+.sec-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn.ico { display: inline-flex; align-items: center; gap: 7px; }
+.btn.ico svg { flex: none; }
 .mt-overlay { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
 .mp { display: grid; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
 .mp-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; }
@@ -223,6 +230,8 @@ table.yt.mt { min-width: 760px; }
 .mchip .ml { color: var(--muted); font-size: 12px; }
 .mchip .mc { font-family: var(--f-mono); font-size: 12px; color: var(--pc); font-weight: 500; }
 .mchip.none { opacity: .5; cursor: default; }
+.mp-none { margin: 0; font-family: var(--f-mono); font-size: 13px; line-height: 1.6; color: var(--muted); }
+.mp-none span { font-family: var(--f-body); font-size: 12.5px; }
 .mchip.dash:has(input:checked) { box-shadow: none; border-style: dashed; border-width: 2px; }
 .mchip.none .mc { color: var(--muted); }
 .bc-row.mrow .calc { white-space: normal; line-height: 1.7; }
@@ -324,10 +333,14 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
   <section id="stage2">
     <div class="sec-head">
       <h2>Этапы 2–7 · Таблица по годам</h2>
+      <div class="sec-tools">
+      <button type="button" class="btn primary ico" id="moneyBtn"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5v19"/><path d="M16.5 6.5H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H6.5"/></svg><span class="lbl">Деньги</span></button>
+      <button type="button" class="btn primary ico" id="healthBtn"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.1a4.2 4.2 0 0 1 7.5 2.7C19.5 15.4 12 20 12 20z"/></svg><span class="lbl">Здоровье</span></button>
       <div class="yearnav">
         <button type="button" class="btn" id="yPrev" aria-label="Сдвинуть на год назад">‹</button>
         <button type="button" class="btn" id="yNow">Текущий год</button>
         <button type="button" class="btn" id="yNext" aria-label="Сдвинуть на год вперёд">›</button>
+      </div>
       </div>
     </div>
     <div id="out2"></div>
@@ -342,6 +355,11 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
     <div class="sec-head"><h2>Совпадения пар</h2><button type="button" class="btn primary" id="pairBtn">Поиск пар</button></div>
     <div id="out4"></div>
   </section>
+
+  <div class="bottom-actions">
+    <span class="toast" id="toast2" role="status"></span>
+    <button type="button" class="btn primary" id="pdfBtn2">Экспорт PDF</button>
+  </div>
 
 </div>
 
@@ -411,7 +429,7 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
       out.innerHTML = '<div class="empty">Введите полную дату рождения, и здесь появится расчёт по шагам.</div>';
       $('out2').innerHTML = '<div class="empty">Таблица по годам появится после ввода даты.</div>';
       $('out3').innerHTML = '<div class="empty">Таблица по месяцам появится после ввода даты.</div>';
-      ['yPrev', 'yNow', 'yNext', 'matchBtn', 'pairBtn'].forEach((id) => { $(id).disabled = true; });
+      ['yPrev', 'yNow', 'yNext', 'matchBtn', 'pairBtn', 'pdfBtn', 'moneyBtn', 'healthBtn'].forEach((id) => { $(id).disabled = true; });
       // Дату стёрли или она неверная — сбрасываем поиск совпадений и пар вместе с выбранными галочками
       Object.values(SETS).forEach((set) => { set.on = false; set.hidden.clear(); }); // без даты листать годы и искать совпадения нечего
       updateMatches();
@@ -526,14 +544,63 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
   });
   const PAIR_GROUPS = [['h', 'Горизонтальные пары'], ['v', 'Вертикальные пары'], ['d', 'Диагональные пары']];
 
+  // Поиск комбинаций внутри самого окна событийности (3×3): «Деньги» и «Здоровье»
+  const MONEY = ['535', '555', '585', '235', '532', '335', '533', '572', '275', '289', '982', '388', '883', '377', '773', '732', '237', '333', '59'];
+  // В исходном списке 987 и 789 повторялись — оставлены по одному разу
+  const HEALTH = ['333', '789', '987', '678', '876', '838', '891', '198', '383', '879', '978', '897', '798'];
+  // Фигуры — как в таблице месяцев: горизонталь слева направо, вертикаль сверху вниз, диагонали сверху вниз, углы по часовой стрелке
+  const WIN_SHAPES = [
+    ['горизонталь', [[0, 0], [0, 1], [0, 2]]], ['вертикаль', [[0, 0], [1, 0], [2, 0]]],
+    ['диагональ', [[0, 0], [1, 1], [2, 2]]], ['диагональ', [[0, 2], [1, 1], [2, 0]]],
+    ['угол', [[1, 0], [0, 0], [0, 1]]], ['угол', [[0, 0], [0, 1], [1, 1]]], ['угол', [[0, 1], [1, 1], [1, 0]]], ['угол', [[1, 1], [1, 0], [0, 0]]],
+    // пары — для двузначных комбинаций
+    ['горизонталь', [[0, 0], [0, 1]]], ['вертикаль', [[0, 0], [1, 0]]], ['диагональ', [[0, 0], [1, 1]]], ['диагональ', [[0, 1], [1, 0]]]
+  ];
+
+  function computeWindow(set) {
+    const r = current, p = lastInput.p;
+    const win = stage2(p.d, p.m, center, r.expr.v, r.fate.v, p.y).filter((x) => Math.abs(x.year - center) <= 1);
+    const W = [win.map((x) => x.base.v), win.map((x) => x.bg.v), win.map((x) => x.ex.v)];
+    const hits = {};
+    WIN_SHAPES.forEach(([nm, rel]) => {
+      const h = Math.max(...rel.map((q) => q[0])), w = Math.max(...rel.map((q) => q[1]));
+      for (let R = 0; R + h < 3; R++)
+        for (let C = 0; C + w < 3; C++) {
+          const cells = rel.map(([a, b]) => [R + a, C + b]);
+          const seq = cells.map(([a, b]) => W[a][b]).join('');
+          if (!set.list.includes(seq)) continue;
+          (hits[seq] = hits[seq] || { found: [], names: new Set() }).found.push(cells);
+          hits[seq].names.add(nm);
+        }
+    });
+    let j = 0;
+    return set.list.map((seq) => {
+      const hh = hits[seq], id = set.prefix + seq;
+      if (!hh) return { id, type: 'm0', vals: [seq], found: [], name: '', color: 'line', k: 0, cells: [] };
+      const k = j++;
+      return { id, type: 'm', vals: [seq], found: hh.found, name: [...hh.names].join(', '),
+               color: 'p' + (((k + set.colorShift) % 12) + 1), k, cells: hh.found[0] };
+    });
+  }
+
   const SETS = {
-    tri: { key: 'tri', defs: PATS, groups: GROUPS, out: 'out3', btn: 'matchBtn', btnOn: 'Убрать совпадения', btnOff: 'Поиск совпадений',
+    money: { key: 'money', list: MONEY, prefix: 'm', colorShift: 0, defs: MONEY.map((s) => ({ id: 'm' + s })),
+             groups: [['m', 'Найдены'], ['m0', 'Не найдены']], out: 'out2', panelSel: '.mp[data-for="money"]', btn: 'moneyBtn',
+             btnOn: 'Скрыть деньги', btnOff: 'Деньги', title: 'Деньги в окне', step: 2.2, insetBase: 2,
+             on: false, res: null, ro: null, hidden: new Set() },
+    // «Здоровье» — другие цвета и рамки глубже внутрь клетки, чтобы не сливаться с «подставой»
+    health: { key: 'health', list: HEALTH, prefix: 'z', colorShift: 6, defs: HEALTH.map((s) => ({ id: 'z' + s })),
+              groups: [['m', 'Найдены'], ['m0', 'Не найдены']], out: 'out2', panelSel: '.mp[data-for="health"]', btn: 'healthBtn',
+              btnOn: 'Скрыть здоровье', btnOff: 'Здоровье', title: 'Здоровье в окне', step: 2.2, insetBase: 10,
+              on: false, res: null, ro: null, hidden: new Set() },
+    tri: { key: 'tri', defs: PATS, groups: GROUPS, out: 'out3', btn: 'matchBtn', btnOn: 'Скрыть совпадения', btnOff: 'Поиск совпадений',
            title: 'Совпадений с окном', step: 1.4, on: false, res: null, ro: null, hidden: new Set() },
-    pair: { key: 'pair', defs: PAIRS, groups: PAIR_GROUPS, out: 'out4', btn: 'pairBtn', btnOn: 'Убрать пары', btnOff: 'Поиск пар',
+    pair: { key: 'pair', defs: PAIRS, groups: PAIR_GROUPS, out: 'out4', btn: 'pairBtn', btnOn: 'Скрыть пары', btnOff: 'Поиск пар',
             title: 'Совпадений пар с окном', step: 1.0, on: false, res: null, ro: null, hidden: new Set() }
   };
 
   function computeSet(set) {
+    if (set.list) return computeWindow(set);
     const r = current, p = lastInput.p;
     const win = stage2(p.d, p.m, center, r.expr.v, r.fate.v, p.y).filter((x) => Math.abs(x.year - center) <= 1);
     const W = [win.map((x) => x.base.v), win.map((x) => x.bg.v), win.map((x) => x.ex.v)];
@@ -622,7 +689,7 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
   }
 
   function drawOverlay(stage, set) {
-    const svg = stage && stage.querySelector('.mt-overlay');
+    const svg = stage && (stage.querySelector('.mt-overlay[data-for="' + (set && set.key) + '"]') || stage.querySelector('.mt-overlay'));
     if (!svg) return;
     if (!set || !set.on || !set.res) { svg.innerHTML = ''; return; }
     const sr = stage.getBoundingClientRect();
@@ -637,7 +704,7 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
     set.res.forEach((pt) => {
       if (set.hidden.has(pt.id) || !pt.found.length) return;
       const col = cs.getPropertyValue('--' + pt.color).trim() || '#888';
-      const d = 2 + pt.k * set.step;
+      const d = (set.insetBase || 2) + pt.k * set.step;
       pt.found.forEach((cells) => { out += shapeSvg(cells, X, Y, d, col, pt.dash); });
     });
     svg.setAttribute('width', sr.width);
@@ -660,19 +727,26 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
     return '<div class="mp-head"><span>' + set.title + ' ' + (center - 1) + '–' + (center + 1) + ': <b>' + total + '</b></span>' +
         '<span class="btns"><button type="button" class="btn sm" data-all="1">Показать все</button>' +
         '<button type="button" class="btn sm" data-all="0">Скрыть все</button></span></div>' +
-      set.groups.map(([t, title]) => '<div class="mp-group"><p class="legend-cap">' + title + '</p><div class="mp-chips">' +
-        set.res.filter((pt) => pt.type === t).map((pt) => {
-          const none = !pt.found.length;
-          return '<label class="mchip' + (none ? ' none' : '') + (pt.dash ? ' dash' : '') + '" style="--pc: var(--' + pt.color + ')">' +
-            '<input type="checkbox" data-pat="' + pt.id + '"' + (none ? ' disabled' : (set.hidden.has(pt.id) ? '' : ' checked')) + '>' +
+      set.groups.map(([t, title]) => {
+        const items = set.res.filter((pt) => pt.type === t);
+        const hit = items.filter((pt) => pt.found.length), miss = items.filter((pt) => !pt.found.length);
+        if (!hit.length && !miss.length) return '';
+        // Найденные — переключатели; ненайденные — просто списком чисел
+        return '<div class="mp-group"><p class="legend-cap">' + title + '</p>' +
+          (hit.length ? '<div class="mp-chips">' + hit.map((pt) =>
+            '<label class="mchip' + (pt.dash ? ' dash' : '') + '" style="--pc: var(--' + pt.color + ')">' +
+            '<input type="checkbox" data-pat="' + pt.id + '"' + (set.hidden.has(pt.id) ? '' : ' checked') + '>' +
             glyph(pt) + '<span class="md">' + pt.vals.join(' ') + '</span><span class="ml">' + pt.name + '</span>' +
-            '<span class="mc">' + (none ? '0' : '×' + pt.found.length) + '</span></label>';
-        }).join('') + '</div></div>').join('');
+            '<span class="mc">×' + pt.found.length + '</span></label>').join('') + '</div>' : '') +
+          (miss.length ? '<p class="mp-none">' + (t === 'm0' ? '' : '<span>не найдены:</span> ') +
+            miss.map((pt) => pt.vals.join(' ')).join(', ') + '</p>' : '') +
+          '</div>';
+      }).join('');
   }
 
   function updateSet(set) {
     const btn = $(set.btn);
-    btn.textContent = set.on ? set.btnOn : set.btnOff;
+    (btn.querySelector('.lbl') || btn).textContent = set.on ? set.btnOn : set.btnOff; // у кнопок с иконкой меняем только подпись
     btn.classList.toggle('primary', !set.on);
     if (set.ro) { set.ro.disconnect(); set.ro = null; }
     if (set.key === 'pair') {
@@ -683,7 +757,7 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
                  : '<div class="empty">Нажмите «Поиск пар», чтобы найти пары из окна событийности в таблице месяцев.</div>';
     }
     const stage = $(set.out).querySelector('.mt-stage');
-    const panel = $(set.out).querySelector('.mp');
+    const panel = $(set.out).querySelector(set.panelSel || '.mp');
     if (!stage || !panel || !current || !lastInput) { set.res = null; return; }
     if (!set.on) { set.res = null; panel.hidden = true; panel.innerHTML = ''; drawOverlay(stage, set); return; }
     set.res = computeSet(set);
@@ -692,7 +766,7 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
     drawOverlay(stage, set);
     if (window.ResizeObserver) { set.ro = new ResizeObserver(() => drawOverlay(stage, set)); set.ro.observe(stage); }
   }
-  function updateMatches() { updateSet(SETS.tri); updateSet(SETS.pair); }
+  function updateMatches() { updateSet(SETS.money); updateSet(SETS.health); updateSet(SETS.tri); updateSet(SETS.pair); }
 
   Object.values(SETS).forEach((set) => {
     $(set.btn).addEventListener('click', () => {
@@ -702,13 +776,13 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
     });
     $(set.out).addEventListener('change', (e) => {
       const id = e.target.dataset && e.target.dataset.pat;
-      if (!id) return;
+      if (!id || (set.panelSel && !e.target.closest(set.panelSel))) return;
       if (e.target.checked) set.hidden.delete(id); else set.hidden.add(id);
       drawOverlay($(set.out).querySelector('.mt-stage'), set);
     });
     $(set.out).addEventListener('click', (e) => {
       const b = e.target.closest('[data-all]');
-      if (!b) return;
+      if (!b || (set.panelSel && !b.closest(set.panelSel))) return;
       if (b.dataset.all === '1') set.hidden.clear(); else set.defs.forEach((pt) => set.hidden.add(pt.id));
       updateSet(set);
     });
@@ -790,12 +864,14 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
         if (pos === 'top') c.push('wt');
         if (pos === 'bottom') c.push('wb');
       }
-      return c.length ? ' class="' + c.join(' ') + '"' : '';
+      // Клетки окна получают координаты 3×3 — по ним рисуются рамки «подставы на деньги»
+      return (c.length ? ' class="' + c.join(' ') + '"' : '') +
+        (inWin(x) ? ' data-r="' + ({ top: 0, mid: 1, bottom: 2 })[pos] + '" data-c="' + (x.year - center + 1) + '"' : '');
     };
 
     $('out2').innerHTML =
       '<div style="display:grid;gap:12px">' +
-        '<div class="yt-wrap"><table class="yt">' +
+        '<div class="yt-wrap"><div class="mt-stage ys" data-set="money"><table class="yt">' +
           '<thead><tr><th scope="col">Годы</th>' + rows.map((x) =>
             '<th scope="col"' + cls(x) + '>' + x.year + (x.year === NOW_YEAR ? '<span class="cur-mark">сейчас</span>' : '') + '</th>').join('') + '</tr></thead>' +
           '<tbody>' +
@@ -816,11 +892,14 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
               '<td class="' + (x.year === center ? 'cur ' : '') + (x.fyMatch ? 'match' : '') + '"' +
               (x.fyMatch ? ' title="Совпадает с числом Судьбы"' : '') + '><span class="big">' + (x.fy ? x.fy.v : '—') + '</span>' +
               '</td>').join('') + '</tr>' +
-          '</tbody></table></div>' +
+          '</tbody></table><svg class="mt-overlay" data-for="money" aria-hidden="true"></svg>' +
+          '<svg class="mt-overlay" data-for="health" aria-hidden="true"></svg></div></div>' +
         '<div class="keys"><span class="key"><span class="swatch frame"></span>Окно событийности</span>' +
           '<span class="key"><span class="swatch"></span>Судьбоносные года' +
           (fateYears.length ? ': <b class="fyears">' + fateYears.join(', ') + '</b>' : ': нет') +
           '</span></div>' +
+        '<div class="mp" data-for="money" hidden></div>' +
+        '<div class="mp" data-for="health" hidden></div>' +
         (anyShift ? '<p class="note"><span class="fn">*</span> В невисокосный год день рождения 29 февраля считается по 28 февраля.</p>' : '') +
       '</div>';
 
@@ -829,6 +908,9 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
     $('yNext').disabled = false;
     $('matchBtn').disabled = false;
     $('pairBtn').disabled = false;
+    $('pdfBtn').disabled = false;
+    $('moneyBtn').disabled = false;
+    $('healthBtn').disabled = false;
   }
 
   function calcBlock(title, rows, label, first, total, note) {
@@ -867,7 +949,19 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
   });
   $('form').addEventListener('submit', (e) => e.preventDefault());
 
-  function toast(msg, ms) { $('toast').textContent = msg; clearTimeout(toast.t); if (ms !== 0) toast.t = setTimeout(() => { $('toast').textContent = ''; }, ms || 2600); }
+  function toast(msg, ms) {
+    const set = (t) => { $('toast').textContent = t; $('toast2').textContent = t; };
+    set(msg); clearTimeout(toast.t); if (ms !== 0) toast.t = setTimeout(() => set(''), ms || 2600);
+  }
+
+  // Нижняя кнопка «Экспорт PDF» — дубль верхней: нажимает её и повторяет её состояние (скрыта / неактивна)
+  (function () {
+    const top = $('pdfBtn'), bottom = $('pdfBtn2');
+    const sync = () => { bottom.hidden = top.hidden; bottom.disabled = top.disabled; };
+    new MutationObserver(sync).observe(top, { attributes: true, attributeFilter: ['hidden', 'disabled'] });
+    sync();
+    bottom.addEventListener('click', () => top.click());
+  })();
 
   // ---------- Экспорт PDF ----------
   // Собираем отдельный светлый лист вне экрана, снимаем его html2canvas и кладём в A4 через jsPDF.
@@ -879,7 +973,10 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
     document.body.appendChild(sheet);
     try {
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
-      sheet.querySelectorAll('.mt-stage').forEach((st) => drawOverlay(st, (sets || SETS)[st.dataset.set]));
+      sheet.querySelectorAll('.mt-overlay').forEach((svg) => {
+        const st = svg.closest('.mt-stage');
+        drawOverlay(st, (sets || SETS)[svg.dataset.for || st.dataset.set]);
+      });
       return await window.html2canvas(sheet, { scale: 2, backgroundColor: '#FFFFFF', logging: false });
     } finally {
       sheet.remove();
@@ -893,14 +990,14 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
     const pick = (root, sel) => { const el = $(root).querySelector(sel); return el ? el.outerHTML : ''; };
     // Совпадения и пары попадают в PDF всегда: если поиск включён — как на экране (с учётом галочек), иначе все найденные
     const pdfSet = (set) => (set.on && set.res ? set : Object.assign({}, set, { on: true, res: computeSet(set), hidden: new Set() }));
-    const pdfSets = { tri: pdfSet(SETS.tri), pair: pdfSet(SETS.pair) };
+    const pdfSets = { tri: pdfSet(SETS.tri), pair: pdfSet(SETS.pair), money: pdfSet(SETS.money), health: pdfSet(SETS.health) };
     const head = '<header class="pdf-head"><h1>Numerology</h1>' +
       '<p><b>' + p.d + ' ' + MONTHS[p.m - 1] + ' ' + p.y + ' года</b> · ' + r.dd + '.' + r.mm + '.' + r.yy + '</p>' +
       '<p class="pdf-gen">Сформировано ' + String(today.getDate()).padStart(2, '0') + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + today.getFullYear() + '</p></header>';
     const pages = [
       head +
       '<section><h2>Этап 1</h2>' + pick('out', '.record') + pick('out', '.memo') + '</section>' +
-      '<section><h2>Таблица по годам</h2>' + pick('out2', '.yt-wrap') + pick('out2', '.keys') + '</section>' +
+      '<section><h2>Таблица по годам</h2>' + pick('out2', '.yt-wrap') + pick('out2', '.keys') + pdfLegend(pdfSets.money) + pdfLegend(pdfSets.health) + '</section>' +
       '<section><h2>Месяцы · совпадения</h2>' + monthsTableHtml(r, 'tri') + pdfLegend(pdfSets.tri) + '</section>'
     ];
     // Пары — всегда, на отдельной странице
@@ -921,12 +1018,14 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
   function pdfLegend(set) {
     if (!set.on || !set.res) return '';
     const vis = set.res.filter((pt) => pt.found.length && !set.hidden.has(pt.id));
-    if (!vis.length) return '<p class="pdf-mcap">' + (set.key === 'pair' ? 'Пары' : 'Совпадения') + ' из окна событийности ' + (center - 1) + '–' + (center + 1) + ': не найдены</p>';
+    const cap = ({ tri: 'Совпадения из окна событийности ', pair: 'Пары из окна событийности ', money: 'Деньги в окне событийности ', health: 'Здоровье в окне событийности ' })[set.key] +
+      (center - 1) + '–' + (center + 1);
+    if (!vis.length) return '<p class="pdf-mcap">' + cap + ': не найдены</p>';
     const gname = { h: 'горизонталь', v: 'вертикаль', c: 'угол', d: 'диагональ' };
-    return '<p class="pdf-mcap">' + (set.key === 'pair' ? 'Пары' : 'Совпадения') + ' из окна событийности ' + (center - 1) + '–' + (center + 1) + '</p>' +
+    return '<p class="pdf-mcap">' + cap + '</p>' +
       '<div class="pdf-ml">' + vis.map((pt) =>
         '<span class="pdf-mi"><i style="border-color: var(--' + pt.color + ');' + (pt.dash ? ' border-style: dashed;' : '') + '"></i><b>' + pt.vals.join(' ') + '</b> ' +
-        gname[pt.type] + ' · ' + pt.name + ' · ×' + pt.found.length + '</span>').join('') + '</div>';
+        (gname[pt.type] ? gname[pt.type] + ' · ' : '') + pt.name + ' · ×' + pt.found.length + '</span>').join('') + '</div>';
   }
 
   // Внутри claude.ai файл отдаём через сохранение просмотрщика (обычные загрузки там запрещены).
@@ -966,7 +1065,7 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
       else if (code === 'unavailable' || code === 'not_granted' || code === 'capability_disabled' || code === 'capability_removed') { btn.hidden = true; toast('Экспорт недоступен в этом окне'); }
       else toast('Не удалось собрать PDF. Попробуйте ещё раз.');
     } finally {
-      btn.disabled = false;
+      btn.disabled = !current;
     }
   });
   // В claude.ai без разрешения на сохранение кнопку прячем; вне claude.ai она работает через обычную загрузку
@@ -998,6 +1097,7 @@ details.more summary:focus-visible { outline: 2px solid var(--accent); outline-o
 
 })();
 </script>
+
 
 
 
